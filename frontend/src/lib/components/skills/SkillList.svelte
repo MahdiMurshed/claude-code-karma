@@ -128,7 +128,7 @@
 	<Dialog.Portal>
 		<Dialog.Overlay class="fixed inset-0 bg-black/50 z-50" />
 		<Dialog.Content
-			class="fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] bg-[var(--bg-base)] rounded-xl shadow-xl max-w-md w-full p-6 border border-[var(--border)] focus:outline-none"
+			class="fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] bg-[var(--bg-base)] rounded-[var(--radius-md)] max-w-md w-full p-6 border border-[var(--border)] focus:outline-none"
 			style="box-shadow: var(--shadow-elevated);"
 			onOpenAutoFocus={(e) => {
 				e.preventDefault();
@@ -180,7 +180,7 @@
 					<button
 						onclick={createSkill}
 						disabled={!newSkillName.trim()}
-						class="px-4 py-2 bg-[var(--accent)] text-white font-medium rounded-lg hover:bg-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
+						class="px-4 py-2 bg-[var(--accent)] text-[var(--bg-base)] font-medium rounded-[var(--radius-sm)] hover:bg-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
 					>
 						Create File
 					</button>
@@ -213,7 +213,7 @@
 		<!-- Temporarily suspended: New Skill creation -->
 		<!-- <button
 			onclick={() => { newSkillName = ''; showModal = true; }}
-			class="flex items-center gap-2 px-3 py-1.5 bg-[var(--accent)] text-white font-medium rounded-lg hover:bg-[var(--accent-hover)] transition-all active:scale-95 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
+			class="flex items-center gap-2 px-3 py-1.5 bg-[var(--accent)] text-[var(--bg-base)] font-medium rounded-[var(--radius-sm)] hover:bg-[var(--accent-hover)] transition-colors active:scale-95 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
 		>
 			<Plus size={16} />
 			New Skill
@@ -225,12 +225,12 @@
 			<Loader2 class="animate-spin text-[var(--text-muted)]" size={32} />
 		</div>
 	{:else if error}
-		<div class="p-4 bg-red-500/10 text-red-500 rounded-lg text-sm border border-red-500/20">
+		<div class="p-4 bg-[var(--error-subtle)] text-[var(--error)] rounded-[var(--radius-md)] text-sm border border-[var(--error)]/30">
 			{error}
 		</div>
 	{:else if items.length === 0}
 		<div
-			class="text-center py-20 bg-[var(--bg-subtle)] rounded-2xl border border-dashed border-[var(--border)]"
+			class="text-center py-20 bg-[var(--bg-subtle)] rounded-[var(--radius-md)] border border-dashed border-[var(--border)]"
 		>
 			<Folder class="mx-auto text-[var(--text-muted)] mb-3" size={48} />
 			<p class="text-[var(--text-secondary)] font-medium">Empty directory</p>
@@ -247,13 +247,13 @@
 								internalPath = item.path;
 							}
 						}}
-						class="group flex items-center gap-4 p-4 bg-[var(--bg-base)] border border-[var(--border)] rounded-xl hover:border-[var(--accent)]/50 hover:shadow-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
+						class="group flex items-center gap-4 p-4 bg-[var(--bg-base)] border border-[var(--border)] rounded-[var(--radius-md)] hover:border-[var(--accent)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
 						data-list-item
 					>
 						<div
-							class="p-2.5 bg-blue-500/10 text-blue-500 rounded-lg group-hover:bg-blue-500/20 transition-colors"
+							class="p-2 bg-[var(--nav-blue-subtle)] text-[var(--nav-blue)] rounded-[var(--radius-sm)] group-hover:bg-[var(--nav-blue-subtle)] transition-colors"
 						>
-							<Folder size={20} />
+							<Folder size={18} strokeWidth={1.75} />
 						</div>
 						<div class="min-w-0">
 							<div class="font-medium text-[var(--text-primary)] truncate">
@@ -263,19 +263,19 @@
 						</div>
 						<ChevronRight
 							size={16}
-							class="ml-auto text-[var(--text-faint)] group-hover:text-blue-500 transition-colors"
+							class="ml-auto text-[var(--text-faint)] group-hover:text-[var(--nav-blue)] transition-colors"
 						/>
 					</a>
 				{:else}
 					<a
 						href={getSkillHref(item)}
-						class="group flex items-center gap-4 p-4 bg-[var(--bg-base)] border border-[var(--border)] rounded-xl hover:border-[var(--accent)]/50 hover:shadow-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
+						class="group flex items-center gap-4 p-4 bg-[var(--bg-base)] border border-[var(--border)] rounded-[var(--radius-md)] hover:border-[var(--accent)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
 						data-list-item
 					>
 						<div
-							class="p-2.5 bg-[var(--bg-subtle)] text-[var(--text-muted)] rounded-lg group-hover:bg-[var(--bg-muted)] transition-colors"
+							class="p-2 bg-[var(--bg-subtle)] text-[var(--text-muted)] rounded-[var(--radius-sm)] group-hover:bg-[var(--bg-muted)] transition-colors"
 						>
-							<FileText size={20} />
+							<FileText size={18} strokeWidth={1.75} />
 						</div>
 						<div class="min-w-0 flex-1">
 							<div class="font-medium text-[var(--text-primary)] truncate">

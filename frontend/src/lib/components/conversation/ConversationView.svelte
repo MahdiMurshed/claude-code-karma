@@ -1206,11 +1206,12 @@
 			fixed bottom-4 right-4 z-50
 			flex items-center gap-2.5
 			px-4 py-3
-			bg-[var(--bg-subtle)]
+			bg-[var(--bg-base)]
 			border border-[var(--border)]
-			rounded-lg shadow-lg
+			rounded-[var(--radius-md)]
 			animate-fade-in
 		"
+		style="box-shadow: var(--shadow-lg);"
 	>
 		<div class="w-2.5 h-2.5 rounded-full bg-[var(--text-muted)]"></div>
 		<span class="text-sm font-medium text-[var(--text-primary)]">
