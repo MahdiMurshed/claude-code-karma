@@ -10,9 +10,16 @@
 		serverTotalCalls: number;
 		maxCalls?: number;
 		accentColor?: string;
+		serverLabel?: string;
 	}
 
-	let { tool, serverTotalCalls, maxCalls = 100, accentColor = 'var(--nav-teal)' }: Props = $props();
+	let {
+		tool,
+		serverTotalCalls,
+		maxCalls = 100,
+		accentColor = 'var(--nav-teal)',
+		serverLabel
+	}: Props = $props();
 
 	let proportion = $derived(serverTotalCalls > 0 ? (tool.calls / serverTotalCalls) * 100 : 0);
 	let tier = $derived(getUsageTier(tool.calls, maxCalls));
@@ -21,16 +28,26 @@
 <div
 	class="
 		group
+		relative overflow-hidden
 		bg-[var(--bg-base)]
 		border border-[var(--border)]
-		rounded-xl
+		rounded-[var(--radius-md)]
 		p-4
-		hover:shadow-md
-		transition-all duration-200
-		relative overflow-hidden
+		hover:border-[var(--accent)]
+		transition-colors duration-200
 	"
-	style="border-left: 3px solid {accentColor};"
 >
+	<!-- Eyebrow: server name, mono-caps with dot marker -->
+	{#if serverLabel}
+		<div class="flex items-center gap-1.5 mb-1.5 font-mono text-[10px] uppercase tracking-widest text-[var(--text-muted)] truncate">
+			<span
+				class="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0"
+				style="background-color: {accentColor};"
+			></span>
+			<span class="truncate">{serverLabel}</span>
+		</div>
+	{/if}
+
 	<!-- Tool Name -->
 	<div class="flex items-center justify-between mb-2">
 		<h4
@@ -41,7 +58,8 @@
 		</h4>
 		<ChevronRight
 			size={14}
-			class="text-[var(--text-faint)] group-hover:text-[var(--text-muted)] transition-colors flex-shrink-0"
+			strokeWidth={1.75}
+			class="text-[var(--text-faint)] group-hover:text-[var(--accent)] transition-colors flex-shrink-0"
 		/>
 	</div>
 
@@ -58,10 +76,10 @@
 	</p>
 
 	<!-- Proportion Bar -->
-	<div class="h-1.5 bg-[var(--bg-subtle)] rounded-full overflow-hidden mb-3">
+	<div class="h-1 bg-[var(--bg-subtle)] rounded-full overflow-hidden mb-3">
 		<div
 			class="h-full rounded-full transition-all duration-300"
-			style="width: {proportion}%; background-color: {accentColor}; opacity: 0.7;"
+			style="width: {proportion}%; background-color: {accentColor}; opacity: 0.75;"
 		></div>
 	</div>
 

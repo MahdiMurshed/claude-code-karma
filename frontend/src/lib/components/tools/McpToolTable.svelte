@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { McpServer, McpToolSummary } from '$lib/api-types';
-	import { formatDistanceToNow } from 'date-fns';
+	import { ChevronDown, ChevronUp } from 'lucide-svelte';
 	import { getServerColorVars } from '$lib/utils/mcp';
 
 	interface FlatTool extends McpToolSummary {
@@ -33,8 +33,10 @@
 		return tools;
 	});
 
+	type SortKey = 'calls' | 'name' | 'server' | 'sessions' | 'main' | 'sub';
+
 	// Sort state
-	let sortKey = $state<'calls' | 'name' | 'server' | 'sessions' | 'main' | 'sub'>('calls');
+	let sortKey = $state<SortKey>('calls');
 	let sortDir = $state<'asc' | 'desc'>('desc');
 
 	let sortedTools = $derived.by(() => {
@@ -70,7 +72,7 @@
 		return sorted;
 	});
 
-	function toggleSort(key: typeof sortKey) {
+	function toggleSort(key: SortKey) {
 		if (sortKey === key) {
 			sortDir = sortDir === 'desc' ? 'asc' : 'desc';
 		} else {
@@ -79,68 +81,122 @@
 		}
 	}
 
-	function sortIndicator(key: typeof sortKey): string {
-		if (sortKey !== key) return '';
-		return sortDir === 'desc' ? ' ↓' : ' ↑';
+	function ariaSortFor(key: SortKey): 'ascending' | 'descending' | 'none' {
+		if (sortKey !== key) return 'none';
+		return sortDir === 'desc' ? 'descending' : 'ascending';
 	}
 </script>
 
-<div class="overflow-x-auto border border-[var(--border)] rounded-xl">
-	<table class="w-full text-sm">
+<div
+	class="overflow-x-auto border border-[var(--border)] rounded-[var(--radius-md)] bg-[var(--bg-base)]"
+>
+	<table class="w-full text-sm tool-table">
 		<thead>
-			<tr class="border-b border-[var(--border)] bg-[var(--bg-subtle)]">
-				<th class="text-left px-4 py-3 font-medium text-[var(--text-secondary)]">
-					<button
-						onclick={() => toggleSort('name')}
-						class="hover:text-[var(--text-primary)] transition-colors"
-					>
-						Tool{sortIndicator('name')}
+			<tr class="border-b border-[var(--border)]">
+				<th
+					class="text-left px-4 py-3 th-editorial"
+					aria-sort={ariaSortFor('name')}
+				>
+					<button type="button" onclick={() => toggleSort('name')} class="th-btn">
+						<span>Tool</span>
+						{#if sortKey === 'name'}
+							{#if sortDir === 'desc'}
+								<ChevronDown size={12} strokeWidth={1.75} />
+							{:else}
+								<ChevronUp size={12} strokeWidth={1.75} />
+							{/if}
+						{/if}
 					</button>
 				</th>
-				<th class="text-left px-4 py-3 font-medium text-[var(--text-secondary)]">
-					<button
-						onclick={() => toggleSort('server')}
-						class="hover:text-[var(--text-primary)] transition-colors"
-					>
-						Server{sortIndicator('server')}
+				<th
+					class="text-left px-4 py-3 th-editorial"
+					aria-sort={ariaSortFor('server')}
+				>
+					<button type="button" onclick={() => toggleSort('server')} class="th-btn">
+						<span>Server</span>
+						{#if sortKey === 'server'}
+							{#if sortDir === 'desc'}
+								<ChevronDown size={12} strokeWidth={1.75} />
+							{:else}
+								<ChevronUp size={12} strokeWidth={1.75} />
+							{/if}
+						{/if}
 					</button>
 				</th>
-				<th class="text-right px-4 py-3 font-medium text-[var(--text-secondary)]">
+				<th
+					class="text-right px-4 py-3 th-editorial"
+					aria-sort={ariaSortFor('calls')}
+				>
 					<button
+						type="button"
 						onclick={() => toggleSort('calls')}
-						class="hover:text-[var(--text-primary)] transition-colors"
+						class="th-btn th-btn--right"
 					>
-						Calls{sortIndicator('calls')}
+						{#if sortKey === 'calls'}
+							{#if sortDir === 'desc'}
+								<ChevronDown size={12} strokeWidth={1.75} />
+							{:else}
+								<ChevronUp size={12} strokeWidth={1.75} />
+							{/if}
+						{/if}
+						<span>Calls</span>
 					</button>
 				</th>
 				<th
-					class="text-right px-4 py-3 font-medium text-[var(--text-secondary)] hidden md:table-cell"
+					class="text-right px-4 py-3 th-editorial hidden md:table-cell"
+					aria-sort={ariaSortFor('sessions')}
 				>
 					<button
+						type="button"
 						onclick={() => toggleSort('sessions')}
-						class="hover:text-[var(--text-primary)] transition-colors"
+						class="th-btn th-btn--right"
 					>
-						Sessions{sortIndicator('sessions')}
+						{#if sortKey === 'sessions'}
+							{#if sortDir === 'desc'}
+								<ChevronDown size={12} strokeWidth={1.75} />
+							{:else}
+								<ChevronUp size={12} strokeWidth={1.75} />
+							{/if}
+						{/if}
+						<span>Sessions</span>
 					</button>
 				</th>
 				<th
-					class="text-right px-4 py-3 font-medium text-[var(--text-secondary)] hidden lg:table-cell"
+					class="text-right px-4 py-3 th-editorial hidden lg:table-cell"
+					aria-sort={ariaSortFor('main')}
 				>
 					<button
+						type="button"
 						onclick={() => toggleSort('main')}
-						class="hover:text-[var(--text-primary)] transition-colors"
+						class="th-btn th-btn--right"
 					>
-						Main %{sortIndicator('main')}
+						{#if sortKey === 'main'}
+							{#if sortDir === 'desc'}
+								<ChevronDown size={12} strokeWidth={1.75} />
+							{:else}
+								<ChevronUp size={12} strokeWidth={1.75} />
+							{/if}
+						{/if}
+						<span>Main %</span>
 					</button>
 				</th>
 				<th
-					class="text-right px-4 py-3 font-medium text-[var(--text-secondary)] hidden lg:table-cell"
+					class="text-right px-4 py-3 th-editorial hidden lg:table-cell"
+					aria-sort={ariaSortFor('sub')}
 				>
 					<button
+						type="button"
 						onclick={() => toggleSort('sub')}
-						class="hover:text-[var(--text-primary)] transition-colors"
+						class="th-btn th-btn--right"
 					>
-						Sub %{sortIndicator('sub')}
+						{#if sortKey === 'sub'}
+							{#if sortDir === 'desc'}
+								<ChevronDown size={12} strokeWidth={1.75} />
+							{:else}
+								<ChevronUp size={12} strokeWidth={1.75} />
+							{/if}
+						{/if}
+						<span>Sub %</span>
 					</button>
 				</th>
 			</tr>
@@ -149,12 +205,12 @@
 			{#each sortedTools as tool (tool.full_name)}
 				{@const toolColor = getServerColorVars(tool.serverName, tool.pluginName)}
 				<tr
-					class="border-b border-[var(--border)] hover:bg-[var(--bg-subtle)] transition-colors"
+					class="border-b border-[var(--border-subtle)] last:border-b-0 hover:bg-[var(--bg-subtle)] transition-colors"
 				>
 					<td class="px-4 py-3">
 						<div class="flex items-center gap-2.5">
 							<span
-								class="w-2 h-2 rounded-full flex-shrink-0"
+								class="w-1.5 h-1.5 rounded-full flex-shrink-0"
 								style="background-color: {toolColor.color};"
 							></span>
 							<a
@@ -173,9 +229,7 @@
 							{tool.serverDisplayName}
 						</a>
 					</td>
-					<td
-						class="px-4 py-3 text-right tabular-nums text-[var(--text-primary)] font-medium"
-					>
+					<td class="px-4 py-3 text-right tabular-nums text-[var(--text-primary)] font-medium">
 						{tool.calls.toLocaleString()}
 					</td>
 					<td
@@ -198,3 +252,37 @@
 		</tbody>
 	</table>
 </div>
+
+<style>
+	.th-editorial {
+		font-family: var(--font-mono);
+		font-size: 10px;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		font-weight: 500;
+		color: var(--text-muted);
+	}
+
+	.th-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		color: inherit;
+		transition: color var(--duration-fast, 150ms) ease;
+	}
+
+	.th-btn--right {
+		justify-content: flex-end;
+		width: 100%;
+	}
+
+	.th-btn:hover {
+		color: var(--text-primary);
+	}
+
+	.th-btn:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+		border-radius: var(--radius-xs);
+	}
+</style>

@@ -385,13 +385,16 @@
 	});
 </script>
 
-<div class="space-y-6">
+<div class="space-y-6 plugin-usage">
 	<!-- Header -->
 	<div class="flex items-center justify-between">
-		<h3 class="text-sm font-semibold text-[var(--text-primary)]">Usage Analytics</h3>
+		<div class="flex items-center gap-2">
+			<span class="inline-block w-1.5 h-1.5 rounded-full bg-[var(--nav-violet)]"></span>
+			<h3 class="pu-section-title">Usage analytics</h3>
+		</div>
 		{#if firstUsedLabel}
-			<span class="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
-				<Calendar size={12} />
+			<span class="pu-since">
+				<Calendar size={11} strokeWidth={1.75} />
 				Since {firstUsedLabel}
 			</span>
 		{/if}
@@ -400,87 +403,82 @@
 	{#if !hasUsage}
 		<!-- Empty state -->
 		<div
-			class="text-center py-12 bg-[var(--bg-subtle)] rounded-xl border border-dashed border-[var(--border)]"
+			class="flex flex-col items-center justify-center py-10 px-4 text-center bg-[var(--bg-subtle)] rounded-[var(--radius-md)] border border-dashed border-[var(--border)]"
 		>
-			<TrendingUp size={32} class="mx-auto text-[var(--text-muted)] mb-3" />
-			<p class="text-sm text-[var(--text-secondary)]">No usage data yet</p>
+			<TrendingUp size={28} strokeWidth={1.5} class="text-[var(--text-muted)] mb-3" />
+			<p class="pu-empty-title">No usage data yet</p>
 			<p class="text-xs text-[var(--text-muted)] mt-1">
-				Usage analytics will appear once you start using this plugin
+				Usage analytics will appear once you start using this plugin.
 			</p>
 		</div>
 	{:else}
 		<!-- Stats cards -->
-		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-			<div class="bg-[var(--bg-subtle)] rounded-xl p-4">
-				<div class="flex items-center gap-2 text-[var(--text-muted)] mb-2">
-					<Bot size={14} />
-					<span class="text-xs font-medium">Agent Runs</span>
+		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+			<div class="pu-stat">
+				<div class="pu-stat__label">
+					<span class="dot" style="background: var(--nav-violet);"></span>
+					<Bot size={11} strokeWidth={1.75} />
+					<span>Agent runs</span>
 				</div>
-				<p class="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
-					{usage.total_agent_runs.toLocaleString()}
-				</p>
+				<p class="pu-stat__value">{usage.total_agent_runs.toLocaleString()}</p>
 			</div>
 
-			<div class="bg-[var(--bg-subtle)] rounded-xl p-4">
-				<div class="flex items-center gap-2 text-[var(--text-muted)] mb-2">
-					<Zap size={14} />
-					<span class="text-xs font-medium">Skill Invocations</span>
+			<div class="pu-stat">
+				<div class="pu-stat__label">
+					<span class="dot" style="background: var(--nav-green);"></span>
+					<Zap size={11} strokeWidth={1.75} />
+					<span>Skill invocations</span>
 				</div>
-				<p class="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
-					{usage.total_skill_invocations.toLocaleString()}
-				</p>
+				<p class="pu-stat__value">{usage.total_skill_invocations.toLocaleString()}</p>
 			</div>
 
-			<div class="bg-[var(--bg-subtle)] rounded-xl p-4">
-				<div class="flex items-center gap-2 text-[var(--text-muted)] mb-2">
-					<Terminal size={14} />
-					<span class="text-xs font-medium">Commands</span>
+			<div class="pu-stat">
+				<div class="pu-stat__label">
+					<span class="dot" style="background: var(--nav-blue);"></span>
+					<Terminal size={11} strokeWidth={1.75} />
+					<span>Commands</span>
 				</div>
-				<p class="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
-					{usage.total_command_invocations.toLocaleString()}
-				</p>
+				<p class="pu-stat__value">{usage.total_command_invocations.toLocaleString()}</p>
 			</div>
 
-			<div class="bg-[var(--bg-subtle)] rounded-xl p-4">
-				<div class="flex items-center gap-2 text-[var(--text-muted)] mb-2">
-					<Wrench size={14} />
-					<span class="text-xs font-medium">MCP Tools</span>
+			<div class="pu-stat">
+				<div class="pu-stat__label">
+					<span class="dot" style="background: var(--nav-orange);"></span>
+					<Wrench size={11} strokeWidth={1.75} />
+					<span>MCP tools</span>
 				</div>
-				<p class="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
-					{usage.total_mcp_tool_calls.toLocaleString()}
-				</p>
+				<p class="pu-stat__value">{usage.total_mcp_tool_calls.toLocaleString()}</p>
 			</div>
 
-			<div class="bg-[var(--bg-subtle)] rounded-xl p-4">
-				<div class="flex items-center gap-2 text-[var(--text-muted)] mb-2">
-					<TrendingUp size={14} />
-					<span class="text-xs font-medium">Avg / Day</span>
+			<div class="pu-stat">
+				<div class="pu-stat__label">
+					<span class="dot" style="background: var(--accent);"></span>
+					<TrendingUp size={11} strokeWidth={1.75} />
+					<span>Avg / day</span>
 				</div>
-				<p class="text-2xl font-bold text-[var(--text-primary)] tabular-nums">
-					{avgPerDay}
-				</p>
+				<p class="pu-stat__value">{avgPerDay}</p>
 			</div>
 
-			<div class="bg-[var(--bg-subtle)] rounded-xl p-4">
-				<div class="flex items-center gap-2 text-[var(--text-muted)] mb-2">
-					<Clock size={14} />
-					<span class="text-xs font-medium">Last Active</span>
+			<div class="pu-stat">
+				<div class="pu-stat__label">
+					<span class="dot" style="background: var(--text-muted);"></span>
+					<Clock size={11} strokeWidth={1.75} />
+					<span>Last active</span>
 				</div>
 				<p
-					class="text-[var(--text-primary)] font-bold tabular-nums"
-					class:text-2xl={!lastActiveLabel || lastActiveLabel.length <= 10}
-					class:text-base={lastActiveLabel && lastActiveLabel.length > 10}
+					class="pu-stat__value"
+					class:pu-stat__value--small={lastActiveLabel && lastActiveLabel.length > 10}
 				>
-					{lastActiveLabel || '--'}
+					{lastActiveLabel || '—'}
 				</p>
 			</div>
 		</div>
 
 		<!-- Activity Trend Chart -->
 		{#if usage.trend.length > 0 && itemTrends.length > 0}
-			<div class="bg-[var(--bg-subtle)] rounded-xl p-4">
+			<div class="pu-panel">
 				<div class="flex items-center justify-between mb-4">
-					<h4 class="text-sm font-medium text-[var(--text-primary)]">Activity Trend</h4>
+					<h4 class="pu-panel-title">Activity trend</h4>
 					<SegmentedControl options={rangeOptions} bind:value={selectedRange} size="sm" />
 				</div>
 
@@ -488,12 +486,10 @@
 				<div class="flex flex-wrap gap-x-6 gap-y-2 mb-4">
 					{#each legendItems as group}
 						<div class="flex items-center gap-2">
-							<span class="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider"
-								>{group.category}</span
-							>
+							<span class="pu-legend-category">{group.category}</span>
 							<div class="flex items-center gap-2.5">
 								{#each group.items as item}
-									<span class="flex items-center gap-1 text-xs text-[var(--text-secondary)]">
+									<span class="pu-legend-item">
 										<span
 											class="inline-block w-2 h-2 rounded-full"
 											style="background-color: {item.color};"
@@ -513,12 +509,13 @@
 		{/if}
 
 		<!-- Top Agents, Skills, Commands & MCP Tools -->
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 			<!-- Top Agents -->
-			<div class="bg-[var(--bg-subtle)] rounded-xl p-4">
+			<div class="pu-panel">
 				<div class="flex items-center gap-2 mb-4">
-					<Bot size={16} class="text-[var(--text-muted)]" />
-					<h4 class="text-sm font-medium text-[var(--text-primary)]">Top Agents</h4>
+					<span class="dot" style="background: {agentColors[0]};"></span>
+					<Bot size={12} strokeWidth={1.75} class="text-[var(--text-muted)]" />
+					<h4 class="pu-panel-title">Top agents</h4>
 				</div>
 				{#if topAgents.length === 0}
 					<p class="text-xs text-[var(--text-muted)] text-center py-4">No agent usage</p>
@@ -555,10 +552,11 @@
 			</div>
 
 			<!-- Top Skills -->
-			<div class="bg-[var(--bg-subtle)] rounded-xl p-4">
+			<div class="pu-panel">
 				<div class="flex items-center gap-2 mb-4">
-					<Zap size={16} class="text-[var(--text-muted)]" />
-					<h4 class="text-sm font-medium text-[var(--text-primary)]">Top Skills</h4>
+					<span class="dot" style="background: {skillColors[0]};"></span>
+					<Zap size={12} strokeWidth={1.75} class="text-[var(--text-muted)]" />
+					<h4 class="pu-panel-title">Top skills</h4>
 				</div>
 				{#if topSkills.length === 0}
 					<p class="text-xs text-[var(--text-muted)] text-center py-4">No skill usage</p>
@@ -595,10 +593,11 @@
 			</div>
 
 			<!-- Top Commands -->
-			<div class="bg-[var(--bg-subtle)] rounded-xl p-4">
+			<div class="pu-panel">
 				<div class="flex items-center gap-2 mb-4">
-					<Terminal size={16} class="text-[var(--text-muted)]" />
-					<h4 class="text-sm font-medium text-[var(--text-primary)]">Top Commands</h4>
+					<span class="dot" style="background: {commandColors[0]};"></span>
+					<Terminal size={12} strokeWidth={1.75} class="text-[var(--text-muted)]" />
+					<h4 class="pu-panel-title">Top commands</h4>
 				</div>
 				{#if topCommands.length === 0}
 					<p class="text-xs text-[var(--text-muted)] text-center py-4">No command usage</p>
@@ -635,10 +634,11 @@
 			</div>
 
 			<!-- Top MCP Tools -->
-			<div class="bg-[var(--bg-subtle)] rounded-xl p-4">
+			<div class="pu-panel">
 				<div class="flex items-center gap-2 mb-4">
-					<Wrench size={16} class="text-[var(--text-muted)]" />
-					<h4 class="text-sm font-medium text-[var(--text-primary)]">Top MCP Tools</h4>
+					<span class="dot" style="background: {mcpColors[0]};"></span>
+					<Wrench size={12} strokeWidth={1.75} class="text-[var(--text-muted)]" />
+					<h4 class="pu-panel-title">Top MCP tools</h4>
 				</div>
 				{#if topMcpTools.length === 0}
 					<p class="text-xs text-[var(--text-muted)] text-center py-4">
@@ -692,3 +692,126 @@
 		</div>
 	{/if}
 </div>
+
+<style>
+	.plugin-usage :global(.dot) {
+		display: inline-block;
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		flex-shrink: 0;
+	}
+
+	.pu-section-title {
+		font-family: var(--font-mono);
+		font-size: 11px;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		font-weight: 500;
+		color: var(--text-primary);
+		margin: 0;
+	}
+
+	.pu-since {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		font-family: var(--font-mono);
+		font-size: 10px;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.pu-empty-title {
+		font-family: var(--font-serif);
+		font-style: italic;
+		font-size: 18px;
+		color: var(--text-primary);
+		margin: 0;
+	}
+
+	/* Stat cards — editorial grammar */
+	.pu-stat {
+		padding: 14px 14px 16px;
+		background: var(--bg-base);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		transition: border-color var(--duration-fast) var(--ease);
+	}
+
+	.pu-stat:hover {
+		border-color: var(--border-hover);
+	}
+
+	.pu-stat__label {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		margin-bottom: 10px;
+		font-family: var(--font-mono);
+		font-size: 10px;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+		font-weight: 500;
+	}
+
+	.pu-stat__label :global(svg) {
+		flex-shrink: 0;
+		color: var(--text-faint);
+	}
+
+	.pu-stat__value {
+		font-size: 24px;
+		font-weight: 600;
+		letter-spacing: -0.02em;
+		line-height: 1.1;
+		color: var(--text-primary);
+		font-variant-numeric: tabular-nums;
+		margin: 0;
+	}
+
+	.pu-stat__value--small {
+		font-size: 14px;
+		font-weight: 500;
+		letter-spacing: 0;
+	}
+
+	/* Panels (trend + top lists) */
+	.pu-panel {
+		padding: 16px;
+		background: var(--bg-base);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+	}
+
+	.pu-panel-title {
+		font-family: var(--font-mono);
+		font-size: 11px;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		font-weight: 500;
+		color: var(--text-primary);
+		margin: 0;
+	}
+
+	.pu-legend-category {
+		font-family: var(--font-mono);
+		font-size: 10px;
+		font-weight: 500;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+	}
+
+	.pu-legend-item {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		font-size: 11px;
+		color: var(--text-secondary);
+		font-variant-numeric: tabular-nums;
+	}
+</style>

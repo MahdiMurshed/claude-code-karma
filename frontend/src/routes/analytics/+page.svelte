@@ -7,7 +7,7 @@
 	import SkeletonBox from '$lib/components/skeleton/SkeletonBox.svelte';
 	import SkeletonText from '$lib/components/skeleton/SkeletonText.svelte';
 	import SkeletonStatsCard from '$lib/components/skeleton/SkeletonStatsCard.svelte';
-	import { getChartColorPalette } from '$lib/components/charts/chartConfig';
+	import { getThemeColors } from '$lib/components/charts/chartConfig';
 	import TimeFilterDropdown from '$lib/components/TimeFilterDropdown.svelte';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import StatsGrid from '$lib/components/StatsGrid.svelte';
@@ -209,7 +209,7 @@
 		if (lower.includes('opus')) return 'var(--model-opus)';
 		if (lower.includes('sonnet')) return 'var(--model-sonnet)';
 		if (lower.includes('haiku')) return 'var(--model-haiku)';
-		return '#14b8a6'; // Teal for 'Other' models
+		return 'var(--nav-teal)'; // Teal ink for 'Other' models
 	};
 
 	// --- Cache ---
@@ -303,13 +303,7 @@
 
 	onMount(async () => {
 		const Chart = (await import('chart.js/auto')).default;
-		const colors = getChartColorPalette();
-		const style = getComputedStyle(document.documentElement);
-		const textMuted = style.getPropertyValue('--text-muted').trim() || '#94a3b8';
-		const textPrimary = style.getPropertyValue('--text-primary').trim() || '#0f172a';
-		const textSecondary = style.getPropertyValue('--text-secondary').trim() || '#475569';
-		const bgMuted = style.getPropertyValue('--bg-muted').trim() || '#f1f5f9';
-		const border = style.getPropertyValue('--border').trim() || 'rgba(0,0,0,0.08)';
+		const c = getThemeColors();
 
 		const sessionCounts = sortedDates.map((date) => analytics.sessions_by_date[date]);
 
@@ -321,9 +315,9 @@
 					{
 						label: 'Sessions',
 						data: sessionCounts,
-						backgroundColor: textMuted,
-						hoverBackgroundColor: colors[0],
-						borderRadius: 3,
+						backgroundColor: c.primary,
+						hoverBackgroundColor: c.text,
+						borderRadius: 2,
 						barThickness: 'flex',
 						maxBarThickness: 14
 					}
@@ -335,23 +329,25 @@
 				plugins: {
 					legend: { display: false },
 					tooltip: {
-						backgroundColor: bgMuted,
-						titleColor: textPrimary,
-						bodyColor: textSecondary,
-						borderColor: border,
+						backgroundColor: c.bgBase,
+						titleColor: c.text,
+						bodyColor: c.textSecondary,
+						borderColor: c.border,
 						borderWidth: 1,
 						padding: 10,
-						cornerRadius: 6,
-						displayColors: false
+						cornerRadius: 4,
+						displayColors: false,
+						titleFont: { family: "'Geist', system-ui, sans-serif", weight: 600, size: 12 },
+						bodyFont: { family: "'Geist Mono', ui-monospace, monospace", size: 11 }
 					}
 				},
 				scales: {
-					y: { beginAtZero: true, grid: { color: border }, ticks: { display: false } },
+					y: { beginAtZero: true, grid: { color: c.border }, ticks: { display: false } },
 					x: {
 						grid: { display: false },
 						ticks: {
-							font: { size: 10 },
-							color: textMuted,
+							font: { family: "'Geist Mono', ui-monospace, monospace", size: 10 },
+							color: c.textMuted,
 							maxTicksLimit: 8,
 							maxRotation: 0
 						}
@@ -454,6 +450,25 @@
 		{/snippet}
 	</PageHeader>
 
+	{#if analytics.total_sessions === 0}
+		<!-- Editorial empty state — stands alone, no zero-value cards -->
+		<div
+			class="border border-[var(--border)] rounded-[var(--radius-lg)] bg-[var(--bg-base)] px-6 py-20 text-center"
+		>
+			<p
+				class="text-[var(--text-secondary)] text-[26px] leading-snug"
+				style="font-family: var(--font-serif); font-style: italic;"
+			>
+				No sessions in this range.
+			</p>
+			<p
+				class="mt-4 text-[10px] font-mono uppercase tracking-[0.16em] text-[var(--text-muted)]"
+			>
+				Try a wider window
+			</p>
+		</div>
+	{:else}
+
 	<!-- Hero Stats Row -->
 	<StatsGrid {stats} columns={3} />
 
@@ -469,18 +484,19 @@
 			</div>
 		{/snippet}
 		{#snippet metadata()}
-			<div class="flex items-center gap-3 text-xs text-[var(--text-muted)]">
-				<span
-					>Avg: <span class="font-mono text-[var(--text-secondary)]"
+			<div class="flex items-center gap-3">
+				<span class="eyebrow-thin">
+					Avg
+					<span class="font-mono tabular-nums text-[var(--text-secondary)] ml-1"
 						>{avgDisplay.value}</span
-					>{avgDisplay.unit}</span
-				>
-				<span class="hidden sm:flex items-end gap-0.5 h-6">
+					><span class="text-[var(--text-faint)]">{avgDisplay.unit}</span>
+				</span>
+				<span class="hidden sm:flex items-end gap-[2px] h-5" aria-hidden="true">
 					{#each sparklineData as val, i}
 						<span
-							class="inline-block w-1 rounded-sm"
+							class="inline-block w-[2px]"
 							style="height: {Math.max(
-								4,
+								2,
 								(val / sparkMax) * 100
 							)}%; background-color: var(--accent); opacity: {0.3 +
 								(i / sparklineData.length) * 0.7};"
@@ -491,25 +507,29 @@
 		{/snippet}
 
 		<div class="space-y-4">
-			<!-- Token context row -->
-			<div class="flex gap-3 text-xs text-[var(--text-muted)]">
-				<span
-					><span class="font-mono text-[var(--text-secondary)]"
+			<!-- Token context row — mono-caps eyebrows with 6px dot markers -->
+			<div class="flex items-center gap-4 text-[11px]">
+				<span class="eyebrow flex items-center gap-2">
+					<span class="dot-6" style="background-color: var(--accent);"></span>
+					<span>Tokens</span>
+					<span class="font-mono tabular-nums text-[var(--text-primary)] ml-0.5 normal-case tracking-normal"
 						>{formatK(analytics.total_tokens)}</span
-					> tokens</span
-				>
-				<span>•</span>
-				<span
-					><span class="font-mono text-[var(--text-secondary)]"
-						>{(analytics.total_duration_seconds / 3600).toFixed(0)}</span
-					>h</span
-				>
-				<span>•</span>
-				<span
-					><span class="font-mono text-[var(--text-secondary)]"
+					>
+				</span>
+				<span class="eyebrow flex items-center gap-2">
+					<span class="dot-6" style="background-color: var(--nav-green);"></span>
+					<span>Hours</span>
+					<span class="font-mono tabular-nums text-[var(--text-primary)] ml-0.5 normal-case tracking-normal"
+						>{(analytics.total_duration_seconds / 3600).toFixed(0)}h</span
+					>
+				</span>
+				<span class="eyebrow flex items-center gap-2">
+					<span class="dot-6" style="background-color: var(--nav-blue);"></span>
+					<span>Per Sess</span>
+					<span class="font-mono tabular-nums text-[var(--text-primary)] ml-0.5 normal-case tracking-normal"
 						>{formatK(tokensPerSession)}</span
-					> tokens/sess</span
-				>
+					>
+				</span>
 			</div>
 
 			<!-- Bar chart -->
@@ -536,34 +556,28 @@
 			</span>
 		{/snippet}
 
-		<div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
 			<!-- Cache Card -->
-			<div class="p-5 bg-[var(--bg-subtle)] border border-[var(--border)] rounded-lg">
+			<div class="p-4 bg-[var(--bg-base)] border border-[var(--border)] rounded-[var(--radius-lg)]">
 				<div class="flex items-center justify-between mb-3">
-					<div class="flex items-center gap-2">
-						<Database size={14} class="text-[var(--text-muted)]" />
-						<span
-							class="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]"
-							>Cache</span
-						>
+					<div class="flex items-center gap-1.5 eyebrow">
+						<Database size={12} class="text-[var(--text-muted)]" />
+						<span>Cache</span>
 					</div>
 					{#if analytics.cache_hit_rate > 0.85}
 						<span
-							class="px-1.5 py-0.5 bg-[var(--success-subtle)] rounded text-[10px] font-medium text-[var(--success)]"
+							class="px-1.5 py-0.5 bg-[var(--success-subtle)] rounded text-[9px] font-medium uppercase tracking-[0.14em] text-[var(--success)]"
 						>
 							Excellent
 						</span>
 					{/if}
 				</div>
 				<div class="flex items-baseline gap-1.5 mb-3">
-					<span
-						class="text-xl font-semibold font-mono tabular-nums text-[var(--text-primary)]"
-						>{cacheHitPercent}%</span
-					>
-					<span class="text-xs text-[var(--text-muted)]">hit rate</span>
+					<span class="value-lg">{cacheHitPercent}%</span>
+					<span class="text-[11px] text-[var(--text-muted)]">hit rate</span>
 				</div>
 				<div
-					class="relative w-full h-1.5 bg-[var(--bg-muted)] rounded-full overflow-hidden"
+					class="relative w-full h-[3px] bg-[var(--bg-subtle)] rounded-full overflow-hidden"
 				>
 					<div
 						class="absolute top-0 left-0 h-full rounded-full bg-[var(--accent)]"
@@ -572,63 +586,73 @@
 				</div>
 			</div>
 
+			<!-- Cost Card -->
+			<div class="p-4 bg-[var(--bg-base)] border border-[var(--border)] rounded-[var(--radius-lg)]">
+				<div class="flex items-center gap-1.5 eyebrow mb-3">
+					<Zap size={12} class="text-[var(--text-muted)]" />
+					<span>Cost / Session</span>
+				</div>
+				<div class="flex items-baseline gap-1">
+					<span class="text-[11px] font-mono text-[var(--text-muted)]">$</span>
+					<span class="value-lg">{costPerSession.toFixed(2)}</span>
+				</div>
+				<div class="mt-2 text-[11px] text-[var(--text-muted)]">
+					<span class="font-mono tabular-nums text-[var(--text-secondary)]"
+						>{formatCurrency(analytics.estimated_cost_usd)}</span
+					>
+					total
+				</div>
+			</div>
+
 			<!-- Projects Card -->
-			<div class="p-5 bg-[var(--bg-subtle)] border border-[var(--border)] rounded-lg">
-				<div class="flex items-center justify-between mb-3">
-					<div class="flex items-center gap-2">
-						<FolderOpen size={14} class="text-[var(--text-muted)]" />
-						<span
-							class="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]"
-							>Projects</span
-						>
-					</div>
+			<div class="p-4 bg-[var(--bg-base)] border border-[var(--border)] rounded-[var(--radius-lg)]">
+				<div class="flex items-center gap-1.5 eyebrow mb-3">
+					<FolderOpen size={12} class="text-[var(--text-muted)]" />
+					<span>Projects</span>
 				</div>
 				<div class="flex items-baseline gap-1.5">
-					<span
-						class="text-xl font-semibold font-mono tabular-nums text-[var(--text-primary)]"
-					>
-						{analytics.projects_active}
-					</span>
-					<span class="text-xs text-[var(--text-muted)]">worked on</span>
+					<span class="value-lg">{analytics.projects_active}</span>
+					<span class="text-[11px] text-[var(--text-muted)]">worked on</span>
 				</div>
 			</div>
 
 			<!-- Compute DNA Card -->
 			<div
-				class="lg:col-span-2 p-5 bg-[var(--bg-subtle)] border border-[var(--border)] rounded-lg"
+				class="p-4 bg-[var(--bg-base)] border border-[var(--border)] rounded-[var(--radius-lg)]"
 			>
-				<div class="flex items-center gap-2 mb-3">
-					<Cpu size={14} class="text-[var(--text-muted)]" />
-					<span
-						class="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]"
-						>Compute DNA</span
-					>
+				<div class="flex items-center gap-1.5 eyebrow mb-3">
+					<Cpu size={12} class="text-[var(--text-muted)]" />
+					<span>Compute DNA</span>
 				</div>
-				<div class="w-full flex h-5 rounded overflow-hidden mb-3">
-					{#each modelDist as model}
-						<div
-							class="h-full"
-							style="width: {model.perc}%; background-color: {getModelColor(
-								model.name
-							)};"
-							title="{model.name}: {model.perc.toFixed(0)}%"
-						></div>
-					{/each}
-				</div>
-				<div class="flex flex-wrap gap-3 text-xs">
-					{#each modelDist as model}
-						<div class="flex items-center gap-1">
+				{#if modelDist.length > 0}
+					<div class="w-full flex h-[10px] rounded overflow-hidden mb-3 bg-[var(--bg-subtle)]">
+						{#each modelDist as model}
 							<div
-								class="w-2 h-2 rounded-full"
-								style="background-color: {getModelColor(model.name)}"
+								class="h-full"
+								style="width: {model.perc}%; background-color: {getModelColor(
+									model.name
+								)};"
+								title="{model.name}: {model.perc.toFixed(0)}%"
 							></div>
-							<span class="text-[var(--text-secondary)]">{model.name}</span>
-							<span class="text-[var(--text-muted)] font-mono"
-								>{model.perc.toFixed(0)}%</span
-							>
-						</div>
-					{/each}
-				</div>
+						{/each}
+					</div>
+					<div class="flex flex-col gap-1 text-[11px]">
+						{#each modelDist as model}
+							<div class="flex items-center gap-1.5">
+								<span
+									class="dot-6"
+									style="background-color: {getModelColor(model.name)}"
+								></span>
+								<span class="text-[var(--text-secondary)] truncate">{model.name}</span>
+								<span class="ml-auto font-mono tabular-nums text-[var(--text-muted)]"
+									>{model.perc.toFixed(0)}%</span
+								>
+							</div>
+						{/each}
+					</div>
+				{:else}
+					<p class="text-[11px] italic text-[var(--text-faint)]" style="font-family: var(--font-serif);">No model data</p>
+				{/if}
 			</div>
 		</div>
 	</CollapsibleGroup>
@@ -645,99 +669,110 @@
 			</div>
 		{/snippet}
 		{#snippet metadata()}
-			<div class="flex items-center gap-4 text-[11px] text-[var(--text-muted)]">
-				<span>
-					Peak: <span class="font-mono text-[var(--text-secondary)]"
-						>{formatPeakHours(analytics.peak_hours)}</span
-					>
-				</span>
+			<div class="flex items-center gap-2 text-[11px] text-[var(--text-muted)]">
+				<span class="eyebrow-thin">Peak</span>
+				<span class="peak-callout">{formatPeakHours(analytics.peak_hours)}</span>
 			</div>
 		{/snippet}
 
-		<div class="space-y-2.5">
-			<!-- Morning -->
-			<div class="flex items-center gap-3">
-				<span class="text-[11px] text-[var(--text-muted)] w-20 shrink-0">06:00–12:00</span>
-				<div
-					class="relative flex-1 h-1.5 bg-[var(--bg-muted)] rounded-full overflow-hidden"
-				>
+		<div class="flex flex-col gap-5">
+			{#each [
+				{ label: 'Morning', range: '06:00–12:00', pct: analytics.time_distribution.morning_pct },
+				{ label: 'Afternoon', range: '12:00–18:00', pct: analytics.time_distribution.afternoon_pct },
+				{ label: 'Evening', range: '18:00–24:00', pct: analytics.time_distribution.evening_pct },
+				{ label: 'Night', range: '00:00–06:00', pct: analytics.time_distribution.night_pct }
+			] as period}
+				<div>
+					<div class="flex items-baseline justify-between mb-1.5">
+						<div class="eyebrow flex items-center gap-2">
+							<span class="dot-6" style="background-color: var(--accent);"></span>
+							<span>{period.label}</span>
+							<span class="text-[var(--text-faint)]">·</span>
+							<span class="tracking-normal normal-case font-mono text-[var(--text-faint)]"
+								>{period.range}</span
+							>
+						</div>
+						<span class="font-mono tabular-nums text-[11px] text-[var(--text-secondary)]"
+							>{period.pct.toFixed(0)}%
+							<span class="text-[var(--text-faint)]"
+								>· {formatHoursFromPct(period.pct)}</span
+							></span
+						>
+					</div>
 					<div
-						class="absolute top-0 left-0 h-full bg-[var(--accent)] rounded-full"
-						style="width: {analytics.time_distribution.morning_pct}%"
-					></div>
+						class="relative w-full h-[3px] bg-[var(--bg-subtle)] rounded-full overflow-hidden"
+					>
+						<div
+							class="absolute top-0 left-0 h-full bg-[var(--accent)] rounded-full"
+							style="width: {period.pct}%"
+						></div>
+					</div>
 				</div>
-				<span class="text-[11px] font-mono text-[var(--text-secondary)] w-20 text-right">
-					{formatHoursFromPct(analytics.time_distribution.morning_pct)} ({analytics.time_distribution.morning_pct.toFixed(
-						0
-					)}%)
-				</span>
-			</div>
+			{/each}
+		</div>
 
-			<!-- Afternoon -->
-			<div class="flex items-center gap-3">
-				<span class="text-[11px] text-[var(--text-muted)] w-20 shrink-0">12:00–18:00</span>
-				<div
-					class="relative flex-1 h-1.5 bg-[var(--bg-muted)] rounded-full overflow-hidden"
-				>
-					<div
-						class="absolute top-0 left-0 h-full bg-[var(--accent)] rounded-full"
-						style="width: {analytics.time_distribution.afternoon_pct}%"
-					></div>
-				</div>
-				<span class="text-[11px] font-mono text-[var(--text-secondary)] w-20 text-right">
-					{formatHoursFromPct(analytics.time_distribution.afternoon_pct)} ({analytics.time_distribution.afternoon_pct.toFixed(
-						0
-					)}%)
-				</span>
-			</div>
-
-			<!-- Evening -->
-			<div class="flex items-center gap-3">
-				<span class="text-[11px] text-[var(--text-muted)] w-20 shrink-0">18:00–24:00</span>
-				<div
-					class="relative flex-1 h-1.5 bg-[var(--bg-muted)] rounded-full overflow-hidden"
-				>
-					<div
-						class="absolute top-0 left-0 h-full bg-[var(--accent)] rounded-full"
-						style="width: {analytics.time_distribution.evening_pct}%"
-					></div>
-				</div>
-				<span class="text-[11px] font-mono text-[var(--text-secondary)] w-20 text-right">
-					{formatHoursFromPct(analytics.time_distribution.evening_pct)} ({analytics.time_distribution.evening_pct.toFixed(
-						0
-					)}%)
-				</span>
-			</div>
-
-			<!-- Night -->
-			<div class="flex items-center gap-3">
-				<span class="text-[11px] text-[var(--text-muted)] w-20 shrink-0">00:00–06:00</span>
-				<div
-					class="relative flex-1 h-1.5 bg-[var(--bg-muted)] rounded-full overflow-hidden"
-				>
-					<div
-						class="absolute top-0 left-0 h-full bg-[var(--accent)] rounded-full"
-						style="width: {analytics.time_distribution.night_pct}%"
-					></div>
-				</div>
-				<span class="text-[11px] font-mono text-[var(--text-secondary)] w-20 text-right">
-					{formatHoursFromPct(analytics.time_distribution.night_pct)} ({analytics.time_distribution.night_pct.toFixed(
-						0
-					)}%)
-				</span>
-			</div>
-
-			<!-- Footer -->
-			<div
-				class="mt-3 pt-2 border-t border-[var(--border)] flex items-center gap-4 text-[11px] text-[var(--text-muted)]"
+		<!-- Footer: hairline rule + total -->
+		<div
+			class="mt-5 pt-3 border-t border-[var(--border)] flex items-center justify-between text-[11px] text-[var(--text-muted)]"
+		>
+			<span class="eyebrow-thin">Total</span>
+			<span class="font-mono tabular-nums text-[var(--text-secondary)]"
+				>{(analytics.total_duration_seconds / 3600).toFixed(0)}h</span
 			>
-				<span
-					>Total: <span class="font-mono text-[var(--text-secondary)]"
-						>{(analytics.total_duration_seconds / 3600).toFixed(0)}h</span
-					></span
-				>
-			</div>
 		</div>
 	</CollapsibleGroup>
 	{/if}
+	{/if}
 </div>
+
+<style>
+	.eyebrow {
+		font-family: var(--font-mono);
+		font-size: 10px;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		font-weight: 500;
+		color: var(--text-muted);
+	}
+
+	.eyebrow-thin {
+		font-family: var(--font-mono);
+		font-size: 10px;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+	}
+
+	.value-lg {
+		font-family: var(--font-mono);
+		font-size: 22px;
+		font-weight: 600;
+		letter-spacing: -0.01em;
+		color: var(--text-primary);
+		font-variant-numeric: tabular-nums;
+		line-height: 1.1;
+	}
+
+	.dot-6 {
+		display: inline-block;
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		flex-shrink: 0;
+	}
+
+	.peak-callout {
+		font-family: var(--font-serif);
+		font-style: italic;
+		font-size: 15px;
+		color: var(--text-primary);
+		letter-spacing: -0.005em;
+		line-height: 1;
+	}
+
+	/* Tabular-nums default for this page */
+	:global(.tabular-nums),
+	.tabular-nums {
+		font-variant-numeric: tabular-nums;
+	}
+</style>

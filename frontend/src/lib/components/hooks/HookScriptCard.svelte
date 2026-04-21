@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { FileCode, ExternalLink } from 'lucide-svelte';
+	import { FileCode, ArrowUpRight } from 'lucide-svelte';
 	import type { HookScript } from '$lib/api-types';
 	import { getHookSourceColorVars } from '$lib/utils';
 
@@ -27,55 +27,30 @@
 
 <a
 	href="/hooks/scripts/{encodeURIComponent(script.filename)}"
-	class="
-		group block
-		bg-[var(--bg-base)]
-		border border-[var(--border)]
-		rounded-xl
-		p-5
-		shadow-sm hover:shadow-xl hover:-translate-y-1
-		transition-all duration-300
-		relative overflow-hidden
-		focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2
-	"
-	style="border-left: 4px solid {sourceColors.color};"
+	class="script-card"
+	style="border-left: 3px solid {sourceColors.color};"
 >
 	<!-- Filename and Language -->
-	<div class="flex items-start justify-between gap-3 mb-4">
-		<div class="flex items-center gap-2 min-w-0">
+	<div class="flex items-start justify-between gap-3 mb-3">
+		<div class="flex items-center gap-3 min-w-0">
 			<div
-				class="shrink-0 p-2 rounded-lg transition-transform duration-300 group-hover:scale-110"
+				class="script-icon"
 				style="background-color: {sourceColors.subtle}; color: {sourceColors.color};"
 			>
-				<FileCode size={18} strokeWidth={2} />
+				<FileCode size={16} strokeWidth={1.75} />
 			</div>
 			<div class="min-w-0">
-				<h3
-					class="text-sm font-bold text-[var(--text-primary)] truncate group-hover:text-[var(--accent)] transition-colors"
-				>
-					{script.filename}
-				</h3>
+				<h3 class="script-title">{script.filename}</h3>
 				{#if script.is_symlink && script.symlink_target}
-					<p
-						class="text-[10px] text-[var(--text-muted)] truncate mt-0.5"
-						title={script.symlink_target}
-					>
+					<p class="script-symlink" title={script.symlink_target}>
 						→ {script.symlink_target}
 					</p>
 				{/if}
 			</div>
 		</div>
 
-		<!-- Language Badge -->
-		<span
-			class="
-				shrink-0
-				px-2 py-0.5
-				text-[10px] font-semibold uppercase tracking-wider
-				bg-[var(--bg-subtle)] text-[var(--text-muted)]
-				rounded-full
-			"
-		>
+		<!-- Language eyebrow -->
+		<span class="script-language">
 			{languageLabel}
 		</span>
 	</div>
@@ -90,34 +65,151 @@
 					e.stopPropagation();
 					goto(`/hooks/${encodeURIComponent(eventType)}`);
 				}}
-				class="
-					inline-flex items-center gap-1
-					px-2 py-0.5
-					text-[10px] font-medium
-					rounded-full
-					transition-colors
-					bg-[var(--bg-muted)] text-[var(--text-secondary)]
-					hover:bg-[var(--nav-amber-subtle)] hover:text-[var(--nav-amber)]
-					border border-transparent
-					hover:border-[var(--nav-amber)]
-					cursor-pointer
-				"
+				class="script-event-pill"
 			>
-				{eventType}
-				<ExternalLink size={8} />
+				<span>{eventType}</span>
+				<ArrowUpRight size={9} strokeWidth={2} />
 			</button>
 		{/each}
 	</div>
 
 	<!-- Stats -->
-	<div
-		class="flex items-center justify-between text-xs text-[var(--text-muted)] pt-4 border-t border-[var(--border-subtle)]"
-	>
-		<span>
-			{script.registrations} registration{script.registrations !== 1 ? 's' : ''}
+	<div class="script-stats">
+		<span class="tabular-nums">
+			<span class="script-stats__num">{script.registrations}</span>
+			<span class="script-stats__label">
+				registration{script.registrations !== 1 ? 's' : ''}
+			</span>
 		</span>
-		<span>
-			{script.event_types.length} event type{script.event_types.length !== 1 ? 's' : ''}
+		<span class="script-stats__sep" aria-hidden="true">·</span>
+		<span class="tabular-nums">
+			<span class="script-stats__num">{script.event_types.length}</span>
+			<span class="script-stats__label">
+				event type{script.event_types.length !== 1 ? 's' : ''}
+			</span>
 		</span>
 	</div>
 </a>
+
+<style>
+	.script-card {
+		display: block;
+		padding: 16px;
+		background: var(--bg-base);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		transition:
+			border-color var(--duration-fast) var(--ease),
+			background var(--duration-fast) var(--ease);
+		position: relative;
+		overflow: hidden;
+	}
+
+	.script-card:hover {
+		border-color: var(--border-hover);
+		background: var(--bg-subtle);
+	}
+
+	.script-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 32px;
+		height: 32px;
+		border-radius: var(--radius-sm);
+		flex-shrink: 0;
+	}
+
+	.script-title {
+		font-size: 13px;
+		font-weight: 600;
+		letter-spacing: -0.01em;
+		color: var(--text-primary);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		transition: color var(--duration-fast) var(--ease);
+	}
+
+	.script-card:hover .script-title {
+		color: var(--accent);
+	}
+
+	.script-symlink {
+		margin-top: 2px;
+		font-family: var(--font-mono);
+		font-size: 10px;
+		color: var(--text-muted);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.script-language {
+		flex-shrink: 0;
+		padding: 2px 7px;
+		font-family: var(--font-mono);
+		font-size: 10px;
+		font-weight: 500;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+		background: var(--bg-subtle);
+		border: 1px solid var(--border-subtle);
+		border-radius: var(--radius-xs);
+	}
+
+	.script-event-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		padding: 2px 7px;
+		font-family: var(--font-mono);
+		font-size: 10px;
+		font-weight: 500;
+		letter-spacing: 0.06em;
+		color: var(--text-secondary);
+		background: var(--bg-muted);
+		border: 1px solid transparent;
+		border-radius: var(--radius-xs);
+		cursor: pointer;
+		transition:
+			color var(--duration-fast) var(--ease),
+			background var(--duration-fast) var(--ease),
+			border-color var(--duration-fast) var(--ease);
+	}
+
+	.script-event-pill:hover {
+		color: var(--nav-orange);
+		background: var(--nav-orange-subtle);
+		border-color: var(--nav-orange);
+	}
+
+	.script-stats {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding-top: 12px;
+		border-top: 1px solid var(--border-subtle);
+		font-family: var(--font-mono);
+		font-size: 10px;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+	}
+
+	.script-stats__num {
+		font-weight: 600;
+		color: var(--text-primary);
+	}
+
+	.script-stats__label {
+		color: var(--text-muted);
+	}
+
+	.script-stats__sep {
+		color: var(--text-faint);
+		text-transform: none;
+		letter-spacing: 0;
+	}
+</style>

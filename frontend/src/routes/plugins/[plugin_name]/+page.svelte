@@ -102,7 +102,7 @@
 		</div>
 
 		<!-- Capabilities Section Skeleton -->
-		<div class="bg-[var(--bg-base)] border border-[var(--border)] rounded-2xl p-6">
+		<div class="bg-[var(--bg-base)] border border-[var(--border)] rounded-[var(--radius-md)] p-6">
 			<SkeletonText width="120px" size="sm" class="mb-4" />
 			<div class="space-y-3">
 				{#each Array(3) as _}
@@ -112,11 +112,11 @@
 		</div>
 
 		<!-- Usage Stats Section Skeleton -->
-		<div class="bg-[var(--bg-base)] border border-[var(--border)] rounded-2xl p-6">
+		<div class="bg-[var(--bg-base)] border border-[var(--border)] rounded-[var(--radius-md)] p-6">
 			<SkeletonText width="100px" size="sm" class="mb-4" />
 			<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 				{#each Array(4) as _}
-					<SkeletonBox height="80px" rounded="lg" />
+					<SkeletonBox height="80px" rounded="md" />
 				{/each}
 			</div>
 		</div>
@@ -143,7 +143,7 @@
 
 		<!-- Capabilities Section -->
 		{#if plugin.capabilities}
-			<div class="bg-[var(--bg-base)] border border-[var(--border)] rounded-2xl p-6">
+			<div class="bg-[var(--bg-base)] border border-[var(--border)] rounded-[var(--radius-md)] p-6">
 				<PluginCapabilities
 					capabilities={plugin.capabilities}
 					pluginName={plugin.name}
@@ -155,20 +155,22 @@
 				{#if plugin.capabilities.skills.length > 0 || plugin.capabilities.commands.length > 0}
 					<a
 						href="/plugins/{encodeURIComponent(plugin.name)}/skills"
-						class="mt-4 flex items-center justify-between p-3 rounded-xl bg-[var(--bg-subtle)] hover:bg-[var(--bg-muted)] transition-colors group"
+						class="mt-4 flex items-center justify-between p-3 rounded-[var(--radius-sm)] bg-[var(--bg-subtle)] border border-[var(--border-subtle)] hover:border-[var(--accent)] hover:bg-[var(--bg-base)] transition-colors group"
 					>
 						<div class="flex items-center gap-3">
 							<FileText
-								size={16}
+								size={14}
+								strokeWidth={1.75}
 								style="color: {colorVars.color};"
 							/>
-							<span class="text-sm font-medium text-[var(--text-primary)]">
-								Browse all {plugin.capabilities.skills.length + plugin.capabilities.commands.length} skill files
+							<span class="text-sm text-[var(--text-primary)]">
+								Browse all <span class="font-mono tabular-nums">{plugin.capabilities.skills.length + plugin.capabilities.commands.length}</span> skill files
 							</span>
 						</div>
 						<ArrowRight
-							size={16}
-							class="text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors"
+							size={14}
+							strokeWidth={1.75}
+							class="text-[var(--text-muted)] group-hover:text-[var(--accent)] transition-colors"
 						/>
 					</a>
 				{/if}
@@ -176,7 +178,7 @@
 		{/if}
 
 		<!-- Usage Stats Section -->
-		<div class="bg-[var(--bg-base)] border border-[var(--border)] rounded-2xl p-6">
+		<div class="bg-[var(--bg-base)] border border-[var(--border)] rounded-[var(--radius-md)] p-6">
 			{#if usageLoading}
 				<h3 class="text-sm font-semibold text-[var(--text-primary)] mb-4">
 					Usage Analytics
@@ -215,27 +217,33 @@
 
 		<!-- Installations Section -->
 		{#if plugin.installations.length > 0}
-			<div class="bg-[var(--bg-base)] border border-[var(--border)] rounded-2xl p-6">
-				<h3 class="text-sm font-semibold text-[var(--text-primary)] mb-4">Installations</h3>
-				<div class="space-y-3">
+			<div class="bg-[var(--bg-base)] border border-[var(--border)] rounded-[var(--radius-md)] p-6">
+				<div class="flex items-center gap-2 mb-4">
+					<span class="inline-block w-1.5 h-1.5 rounded-full" style="background: {colorVars.color};"></span>
+					<h3 class="plugin-section-title">Installations</h3>
+					<span class="text-[10px] font-mono tabular-nums text-[var(--text-faint)] tracking-wider">
+						{plugin.installations.length}
+					</span>
+				</div>
+				<div class="space-y-2">
 					{#each plugin.installations as installation}
 						<div
-							class="flex items-center justify-between p-4 bg-[var(--bg-subtle)] rounded-xl"
+							class="flex items-center justify-between gap-4 p-3 bg-[var(--bg-subtle)] border border-[var(--border-subtle)] rounded-[var(--radius-sm)]"
 						>
-							<div class="flex items-center gap-4 min-w-0 flex-1">
+							<div class="flex items-center gap-3 min-w-0 flex-1">
 								<span
-									class="px-2 py-1 text-xs font-medium bg-[var(--bg-base)] rounded capitalize flex-shrink-0"
+									class="px-2 py-0.5 text-[10px] font-mono tracking-widest uppercase bg-[var(--bg-base)] border border-[var(--border-subtle)] text-[var(--text-muted)] rounded-[var(--radius-xs)] flex-shrink-0"
 								>
 									{installation.scope}
 								</span>
 								<span
-									class="text-sm text-[var(--text-secondary)] font-mono break-all"
+									class="text-xs text-[var(--text-secondary)] font-mono break-all"
 									title={installation.install_path}
 								>
 									{installation.install_path}
 								</span>
 							</div>
-							<div class="text-xs text-[var(--text-muted)] flex-shrink-0 ml-4">
+							<div class="text-[10px] font-mono tabular-nums text-[var(--text-faint)] flex-shrink-0 tracking-wider">
 								v{installation.version.substring(0, 7)}
 							</div>
 						</div>
@@ -245,3 +253,16 @@
 		{/if}
 	</div>
 {/if}
+
+<style>
+	.plugin-section-title {
+		font-family: var(--font-mono);
+		font-size: 11px;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		font-weight: 500;
+		color: var(--text-primary);
+		margin: 0;
+	}
+</style>
+

@@ -19,14 +19,14 @@
 	import StatsGrid from '$lib/components/StatsGrid.svelte';
 	import SegmentedControl from '$lib/components/ui/SegmentedControl.svelte';
 	import CollapsibleGroup from '$lib/components/ui/CollapsibleGroup.svelte';
-	import Badge from '$lib/components/ui/Badge.svelte';
+	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 	import McpServerIcon from '$lib/components/tools/McpServerIcon.svelte';
 	import McpToolCard from '$lib/components/tools/McpToolCard.svelte';
 	import McpToolTable from '$lib/components/tools/McpToolTable.svelte';
 	import McpContextBar from '$lib/components/tools/McpContextBar.svelte';
 	import { getServerColorVars, getToolItemChartHex, parseBuiltinTool, parseMcpTool } from '$lib/utils/mcp';
 	import UsageAnalytics from '$lib/components/charts/UsageAnalytics.svelte';
-	import type { McpServer, StatItem } from '$lib/api-types';
+	import type { StatItem } from '$lib/api-types';
 
 	let { data } = $props();
 
@@ -214,15 +214,10 @@
 			</div>
 
 			<!-- Hero Stats skeleton -->
-			<div
-				class="relative overflow-hidden rounded-2xl p-8 border border-[var(--border)]"
-				style="background: linear-gradient(135deg, rgba(8, 145, 178, 0.02) 0%, rgba(8, 145, 178, 0.06) 100%);"
-			>
-				<div class="relative grid grid-cols-1 sm:grid-cols-4 gap-4">
-					{#each Array(4) as _}
-						<SkeletonStatsCard />
-					{/each}
-				</div>
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+				{#each Array(4) as _}
+					<SkeletonStatsCard />
+				{/each}
 			</div>
 
 			<!-- Filters row skeleton -->
@@ -230,18 +225,18 @@
 				<div class="flex items-center gap-3 flex-wrap">
 					<div class="flex gap-1">
 						{#each Array(3) as _}
-							<SkeletonBox width="100px" height="36px" rounded="lg" />
+							<SkeletonBox width="100px" height="36px" rounded="md" />
 						{/each}
 					</div>
 					<div class="flex gap-1">
 						{#each Array(4) as _}
-							<SkeletonBox width="80px" height="32px" rounded="lg" />
+							<SkeletonBox width="80px" height="32px" rounded="md" />
 						{/each}
 					</div>
 				</div>
 				<div class="flex items-center gap-3">
-					<SkeletonBox width="256px" height="40px" rounded="lg" />
-					<SkeletonBox width="120px" height="40px" rounded="lg" />
+					<SkeletonBox width="256px" height="40px" rounded="md" />
+					<SkeletonBox width="120px" height="40px" rounded="md" />
 				</div>
 			</div>
 
@@ -281,17 +276,7 @@
 
 	<!-- Hero Stats -->
 	{#if hasServers}
-		<div
-			class="relative overflow-hidden rounded-2xl p-8 border border-[var(--border)]"
-			style="background: linear-gradient(135deg, rgba(8, 145, 178, 0.02) 0%, rgba(8, 145, 178, 0.06) 100%);"
-		>
-			<div
-				class="absolute -top-24 -right-24 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none"
-			></div>
-			<div class="relative">
-				<StatsGrid {stats} columns={4} />
-			</div>
-		</div>
+		<StatsGrid {stats} columns={4} />
 	{/if}
 
 	<!-- Filters Row -->
@@ -319,7 +304,7 @@
 							pl-9 pr-4 py-2
 							bg-[var(--bg-base)]
 							border border-[var(--border)]
-							rounded-lg text-sm
+							rounded-[var(--radius-md)] text-sm
 							focus:outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20
 							w-full sm:w-64
 							transition-all
@@ -335,23 +320,23 @@
 						onclick={toggleAllGroups}
 						class="
 							flex items-center gap-1.5 px-3 py-2
-							text-sm font-medium
+							font-mono text-[11px] uppercase tracking-widest font-medium
 							text-[var(--text-secondary)]
 							hover:text-[var(--text-primary)]
 							bg-[var(--bg-base)]
 							border border-[var(--border)]
-							rounded-lg
-							transition-all
+							rounded-[var(--radius-md)]
+							transition-colors
 							hover:bg-[var(--bg-subtle)]
 							whitespace-nowrap
 						"
 						title={allExpanded ? 'Collapse all' : 'Expand all'}
 					>
 						{#if allExpanded}
-							<ChevronsDownUp size={16} />
+							<ChevronsDownUp size={14} strokeWidth={1.75} />
 							<span class="hidden sm:inline">Collapse All</span>
 						{:else}
-							<ChevronsUpDown size={16} />
+							<ChevronsUpDown size={14} strokeWidth={1.75} />
 							<span class="hidden sm:inline">Expand All</span>
 						{/if}
 					</button>
@@ -362,25 +347,17 @@
 
 	<!-- Content -->
 	{#if !hasServers}
-		<div
-			class="text-center py-20 bg-[var(--bg-subtle)] rounded-2xl border border-dashed border-[var(--border)]"
-		>
-			<Wrench class="mx-auto text-[var(--text-muted)] mb-3" size={48} />
-			<p class="text-[var(--text-secondary)] font-medium">No tools found</p>
-			<p class="text-sm text-[var(--text-muted)] mt-1">
-				Tool usage will appear here once you start using Claude Code
-			</p>
-		</div>
+		<EmptyState
+			icon={Wrench}
+			title="No tools found"
+			description="Tool usage will appear here once you start using Claude Code."
+		/>
 	{:else if !hasFiltered}
-		<div
-			class="text-center py-20 bg-[var(--bg-subtle)] rounded-2xl border border-dashed border-[var(--border)]"
-		>
-			<Search class="mx-auto text-[var(--text-muted)] mb-3" size={48} />
-			<p class="text-[var(--text-secondary)] font-medium">No matching servers</p>
-			<p class="text-sm text-[var(--text-muted)] mt-1">
-				Try adjusting your search or source filter
-			</p>
-		</div>
+		<EmptyState
+			icon={Search}
+			title="No matching servers"
+			description="Try adjusting your search or source filter."
+		/>
 	{:else if viewMode === 'analytics'}
 		<!-- Usage Analytics View -->
 		<UsageAnalytics
@@ -421,11 +398,11 @@
 					title={server.display_name}
 					open={expandedServers.has(server.name)}
 					onOpenChange={() => toggleServer(server.name)}
-					accentColor={colorVars.color}
+					accentColor={'var(--nav-teal)'}
 				>
 					{#snippet icon()}
 						<div
-							class="p-1.5 rounded-md"
+							class="p-1.5 rounded-[var(--radius-sm)]"
 							style="background-color: {colorVars.subtle}; color: {colorVars.color};"
 						>
 							<McpServerIcon serverName={server.name} size={14} />
@@ -447,10 +424,10 @@
 									href="/plugins/{encodeURIComponent(server.plugin_name)}"
 									class="
 										inline-flex items-center gap-1 px-2 py-0.5
-										text-[10px] font-medium
-										hover:text-[var(--text-primary)]
-										hover:bg-[var(--bg-muted)]
-										rounded-full
+										text-[10px] font-mono font-medium uppercase tracking-widest
+										rounded-[var(--radius-xs)]
+										border border-[var(--border-subtle)]
+										hover:text-[var(--accent)]
 										transition-colors
 									"
 									style="color: {colorVars.color}; background-color: {colorVars.subtle};"
@@ -461,9 +438,17 @@
 									{server.plugin_name}
 								</a>
 							{:else}
-								<Badge variant="accent" size="sm">
+								<span
+									class="
+										inline-flex items-center px-2 py-0.5
+										text-[10px] font-mono font-medium uppercase tracking-widest
+										rounded-[var(--radius-xs)]
+										bg-[var(--bg-subtle)] border border-[var(--border-subtle)]
+										text-[var(--text-muted)]
+									"
+								>
 									{server.source}
-								</Badge>
+								</span>
 							{/if}
 						</div>
 					{/snippet}
@@ -478,10 +463,10 @@
 							/>
 							<a
 								href="/tools/{server.name}"
-								class="text-xs text-[var(--accent)] hover:underline flex items-center gap-1"
+								class="flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
 							>
 								View details
-								<ExternalLink size={10} />
+								<ExternalLink size={10} strokeWidth={1.75} />
 							</a>
 						</div>
 
@@ -501,6 +486,7 @@
 										serverTotalCalls={server.total_calls}
 										maxCalls={globalMaxCalls}
 										accentColor={colorVars.color}
+										serverLabel={server.display_name}
 									/>
 								</a>
 							{/each}
@@ -509,24 +495,22 @@
 						{#if server.tools.length > 12}
 							<a
 								href="/tools/{server.name}"
-								class="block text-center text-sm text-[var(--accent)] hover:underline py-2"
+								class="block text-center py-2 font-mono text-[11px] uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors tabular-nums"
 							>
-								+{server.tools.length - 12} more tools →
+								+{server.tools.length - 12} more tools &rarr;
 							</a>
 						{/if}
 
 						<!-- Server footer -->
 						<div
-							class="flex items-center gap-4 text-xs text-[var(--text-faint)] pt-2 border-t border-[var(--border)]"
+							class="flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 border-t border-[var(--border-subtle)] font-mono text-[10px] uppercase tracking-widest text-[var(--text-faint)] tabular-nums"
 						>
-							<span>Source: {server.source}</span>
+							<span>Source &mdash; {server.source}</span>
 							{#if server.first_used}
-								<span
-									>First: {new Date(server.first_used).toLocaleDateString()}</span
-								>
+								<span>First &mdash; {new Date(server.first_used).toLocaleDateString()}</span>
 							{/if}
 							{#if server.last_used}
-								<span>Last: {new Date(server.last_used).toLocaleDateString()}</span>
+								<span>Last &mdash; {new Date(server.last_used).toLocaleDateString()}</span>
 							{/if}
 						</div>
 					</div>

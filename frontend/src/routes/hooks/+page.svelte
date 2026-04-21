@@ -11,6 +11,7 @@
 	import StatsGrid from '$lib/components/StatsGrid.svelte';
 	import SegmentedControl from '$lib/components/ui/SegmentedControl.svelte';
 	import CollapsibleGroup from '$lib/components/ui/CollapsibleGroup.svelte';
+	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 	import HookEventNode from '$lib/components/hooks/HookEventNode.svelte';
 	import HookScriptCard from '$lib/components/hooks/HookScriptCard.svelte';
 	import type { StatItem, HookEventSummary } from '$lib/api-types';
@@ -53,6 +54,22 @@
 		'Session End',
 		'Setup'
 	];
+
+	// Phase accent inks — each phase takes a muted editorial ink,
+	// reused for the 6px dot marker next to the mono-caps eyebrow.
+	const PHASE_INK: Record<string, string> = {
+		'Session Lifecycle': 'var(--nav-orange)',
+		'User Input': 'var(--nav-blue)',
+		'Tool Lifecycle': 'var(--nav-green)',
+		'Agent Lifecycle': 'var(--nav-purple)',
+		'Context & Permissions': 'var(--nav-teal)',
+		'Session End': 'var(--nav-gray)',
+		Setup: 'var(--text-muted)'
+	};
+
+	function phaseInk(phase: string): string {
+		return PHASE_INK[phase] ?? 'var(--text-muted)';
+	}
 
 	// Group events by phase
 	interface PhaseGroup {
@@ -141,7 +158,7 @@
 	<PageHeader
 		title="Hooks"
 		icon={Webhook}
-		iconColor="--nav-amber"
+		iconColor="--nav-orange"
 		breadcrumbs={[{ label: 'Dashboard', href: '/' }, { label: 'Hooks' }]}
 		subtitle="Hook scripts intercepting your Claude Code sessions"
 	/>
@@ -149,15 +166,9 @@
 	<!-- Hero Stats -->
 	{#if hasHooks}
 		<div
-			class="relative overflow-hidden rounded-2xl p-8 border border-[var(--border)]"
-			style="background: linear-gradient(135deg, rgba(217, 119, 6, 0.02) 0%, rgba(217, 119, 6, 0.06) 100%);"
+			class="relative overflow-hidden rounded-[var(--radius-md)] p-8 border border-[var(--border)]"
+			style="background: linear-gradient(135deg, var(--bg-base) 0%, var(--nav-orange-subtle) 100%);"
 		>
-			<div
-				class="absolute -top-24 -right-24 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl pointer-events-none"
-			></div>
-			<div
-				class="absolute -bottom-24 -left-24 w-64 h-64 bg-amber-500/3 rounded-full blur-3xl pointer-events-none"
-			></div>
 			<div class="relative">
 				<StatsGrid {stats} columns={3} />
 			</div>
@@ -178,24 +189,14 @@
 			{#if viewMode === 'timeline' && data.hooks.event_summaries.length > 0}
 				<button
 					onclick={toggleAllEvents}
-					class="
-						flex items-center gap-1.5 px-3 py-2
-						text-sm font-medium
-						text-[var(--text-secondary)]
-						hover:text-[var(--text-primary)]
-						bg-[var(--bg-base)]
-						border border-[var(--border)]
-						rounded-lg
-						transition-all
-						hover:bg-[var(--bg-subtle)]
-					"
+					class="expand-all-btn"
 					title={allEventsExpanded ? 'Collapse all events' : 'Expand all events'}
 				>
 					{#if allEventsExpanded}
-						<ChevronsDownUp size={16} />
+						<ChevronsDownUp size={14} strokeWidth={1.75} />
 						<span>Collapse All</span>
 					{:else}
-						<ChevronsUpDown size={16} />
+						<ChevronsUpDown size={14} strokeWidth={1.75} />
 						<span>Expand All</span>
 					{/if}
 				</button>
@@ -205,25 +206,32 @@
 
 	<!-- Content Area -->
 	{#if !hasHooks}
-		<div
-			class="text-center py-20 bg-[var(--bg-subtle)] rounded-2xl border border-dashed border-[var(--border)]"
-		>
-			<Webhook class="mx-auto text-[var(--text-muted)] mb-3" size={48} />
-			<p class="text-[var(--text-secondary)] font-medium">No hooks found</p>
-			<p class="text-sm text-[var(--text-muted)] mt-1">
-				Hook scripts will appear here once you configure them
-			</p>
-		</div>
+		<EmptyState
+			icon={Webhook}
+			title="No hooks found"
+			description="Hook scripts will appear here once you configure them in ~/.claude/settings.json or through a plugin."
+		/>
 	{:else if viewMode === 'timeline'}
 		<!-- Timeline View -->
-		<div class="space-y-8">
-			{#each eventsByPhase as phaseGroup}
-				<div>
-					<!-- Phase Header -->
-					<h2
-						class="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-4"
-					>
-						{phaseGroup.phase}
+		<div class="space-y-10">
+			{#each eventsByPhase as phaseGroup, i (phaseGroup.phase)}
+				<section>
+					<!-- Hairline rule above every phase except the first -->
+					{#if i > 0}
+						<div class="rule mb-8"></div>
+					{/if}
+
+					<!-- Phase Eyebrow + dot -->
+					<h2 class="phase-eyebrow">
+						<span
+							class="phase-eyebrow__dot"
+							style="background: {phaseInk(phaseGroup.phase)};"
+							aria-hidden="true"
+						></span>
+						<span>{phaseGroup.phase}</span>
+						<span class="phase-eyebrow__count">
+							{phaseGroup.events.length}
+						</span>
 					</h2>
 
 					<!-- Events in this phase -->
@@ -236,7 +244,7 @@
 							/>
 						{/each}
 					</div>
-				</div>
+				</section>
 			{/each}
 		</div>
 	{:else}
@@ -255,46 +263,40 @@
 				>
 					{#snippet icon()}
 						<div
-							class="p-1.5 rounded-md"
+							class="source-icon"
 							style="background-color: {sourceColors.subtle}; color: {sourceColors.color};"
 						>
 							{#if source.source_type === 'plugin'}
-								<Puzzle size={14} />
+								<Puzzle size={14} strokeWidth={1.75} />
 							{:else}
-								<FolderOpen size={14} />
+								<FolderOpen size={14} strokeWidth={1.75} />
 							{/if}
 						</div>
 					{/snippet}
 					{#snippet metadata()}
 						<div class="flex items-center gap-3">
-							<span class="text-xs text-[var(--text-muted)] tabular-nums">
+							<span class="source-meta tabular-nums">
 								{source.total_registrations} registration{source.total_registrations !==
 								1
 									? 's'
 									: ''}
 							</span>
-							<span class="text-xs text-[var(--text-muted)] tabular-nums">
+							<span class="source-meta-sep" aria-hidden="true">·</span>
+							<span class="source-meta tabular-nums">
 								{source.event_types_covered.length} event type{source
 									.event_types_covered.length !== 1
 									? 's'
 									: ''}
 							</span>
 							{#if source.blocking_hooks_count > 0}
-								<span
-									class="
-										px-2 py-0.5
-										text-[10px] font-semibold uppercase tracking-wider
-										bg-red-500/10 text-red-600 dark:text-red-400
-										rounded-full
-									"
-								>
+								<span class="source-block-pill tabular-nums">
 									{source.blocking_hooks_count} blocking
 								</span>
 							{/if}
 						</div>
 					{/snippet}
 
-					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 						{#each source.scripts as script (script.filename)}
 							<HookScriptCard
 								{script}
@@ -308,3 +310,105 @@
 		</div>
 	{/if}
 </div>
+
+<style>
+	.expand-all-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		padding: 6px 12px;
+		font-family: var(--font-mono);
+		font-size: 10px;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		font-weight: 500;
+		color: var(--text-secondary);
+		background: var(--bg-base);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-sm);
+		cursor: pointer;
+		transition:
+			color var(--duration-fast) var(--ease),
+			border-color var(--duration-fast) var(--ease),
+			background var(--duration-fast) var(--ease);
+	}
+
+	.expand-all-btn:hover {
+		color: var(--text-primary);
+		border-color: var(--border-hover);
+		background: var(--bg-subtle);
+	}
+
+	.phase-eyebrow {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin: 0 0 18px;
+		font-family: var(--font-mono);
+		font-size: 11px;
+		font-weight: 500;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+		color: var(--text-secondary);
+	}
+
+	.phase-eyebrow__dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		flex-shrink: 0;
+	}
+
+	.phase-eyebrow__count {
+		margin-left: 2px;
+		padding: 0 6px;
+		font-size: 10px;
+		letter-spacing: 0.1em;
+		color: var(--text-muted);
+		background: var(--bg-muted);
+		border-radius: 999px;
+		font-variant-numeric: tabular-nums;
+		line-height: 1.7;
+	}
+
+	.source-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 32px;
+		height: 32px;
+		border-radius: var(--radius-sm);
+	}
+
+	.source-meta {
+		font-family: var(--font-mono);
+		font-size: 10px;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+	}
+
+	.source-meta-sep {
+		color: var(--text-faint);
+		font-size: 10px;
+	}
+
+	.source-block-pill {
+		display: inline-flex;
+		align-items: center;
+		padding: 2px 7px;
+		font-family: var(--font-mono);
+		font-size: 10px;
+		font-weight: 600;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		background: var(--error-subtle);
+		color: var(--error);
+		border-radius: var(--radius-xs);
+	}
+
+	.rule {
+		height: 1px;
+		background: var(--border);
+	}
+</style>
