@@ -100,7 +100,7 @@
 	<Dialog.Portal>
 		<Dialog.Overlay class="fixed inset-0 bg-black/50 z-50" />
 		<Dialog.Content
-			class="fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] bg-[var(--bg-base)] rounded-xl shadow-xl max-w-md w-full p-6 border border-[var(--border)] focus:outline-none"
+			class="fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] bg-[var(--bg-base)] rounded-[var(--radius-md)] max-w-md w-full p-6 border border-[var(--border)] focus:outline-none"
 			style="box-shadow: var(--shadow-elevated);"
 			onOpenAutoFocus={(e) => {
 				e.preventDefault();
@@ -152,7 +152,7 @@
 					<button
 						onclick={createAgent}
 						disabled={!newAgentName.trim()}
-						class="px-4 py-2 bg-[var(--accent)] text-white font-medium rounded-lg hover:bg-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
+						class="px-4 py-2 bg-[var(--accent)] text-[var(--bg-base)] font-medium rounded-[var(--radius-sm)] hover:bg-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
 					>
 						Create Agent
 					</button>
@@ -168,12 +168,12 @@
 			<Loader2 class="animate-spin text-[var(--text-muted)]" size={32} />
 		</div>
 	{:else if error}
-		<div class="p-4 bg-red-500/10 text-red-500 rounded-lg text-sm border border-red-500/20">
+		<div class="p-4 bg-[var(--error-subtle)] text-[var(--error)] rounded-[var(--radius-md)] text-sm border border-[var(--error)]/30">
 			{error}
 		</div>
 	{:else if agents.length === 0}
 		<div
-			class="text-center py-20 bg-[var(--bg-subtle)] rounded-2xl border border-dashed border-[var(--border)]"
+			class="text-center py-20 bg-[var(--bg-subtle)] rounded-[var(--radius-md)] border border-dashed border-[var(--border)]"
 		>
 			<Bot class="mx-auto text-[var(--text-muted)] mb-3" size={48} />
 			<p class="text-[var(--text-secondary)] font-medium">No agents found</p>
@@ -188,17 +188,17 @@
 			{#each agents as agent}
 				<a
 					href={getAgentHref(agent.name)}
-					class="group block bg-[var(--bg-base)] border border-[var(--border)] rounded-xl p-5 hover:border-[var(--accent)]/50 hover:shadow-lg transition-all duration-300 relative overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
+					class="group block bg-[var(--bg-base)] border border-[var(--border)] rounded-[var(--radius-md)] p-5 hover:border-[var(--accent)] transition-colors relative overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
 					data-list-item
 				>
 					<div class="flex items-start justify-between mb-4">
 						<div
-							class="p-2.5 bg-[var(--bg-subtle)] text-[var(--text-secondary)] rounded-lg group-hover:bg-[var(--accent)]/10 group-hover:text-[var(--accent)] transition-colors"
+							class="p-2 bg-[var(--bg-subtle)] text-[var(--text-secondary)] rounded-[var(--radius-sm)] group-hover:bg-[var(--accent-subtle)] group-hover:text-[var(--accent)] transition-colors"
 						>
 							<Bot size={20} strokeWidth={2} />
 						</div>
 						<div
-							class="px-2 py-0.5 rounded-full bg-[var(--bg-subtle)] text-[10px] font-medium text-[var(--text-muted)] uppercase tracking-wider"
+							class="px-2 py-0.5 rounded-[var(--radius-xs)] bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[10px] font-mono font-medium text-[var(--text-muted)] uppercase tracking-widest"
 						>
 							Markdown
 						</div>

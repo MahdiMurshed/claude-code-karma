@@ -59,12 +59,12 @@
 			<Loader2 class="animate-spin text-[var(--text-muted)]" size={32} />
 		</div>
 	{:else if error}
-		<div class="p-4 bg-red-500/10 text-red-500 rounded-lg text-sm border border-red-500/20">
+		<div class="p-4 bg-[var(--error-subtle)] text-[var(--error)] rounded-[var(--radius-md)] text-sm border border-[var(--error)]/30">
 			{error}
 		</div>
 	{:else if !overview?.servers?.length}
 		<div
-			class="text-center py-20 bg-[var(--bg-subtle)] rounded-2xl border border-dashed border-[var(--border)]"
+			class="text-center py-20 bg-[var(--bg-subtle)] rounded-[var(--radius-md)] border border-dashed border-[var(--border)]"
 		>
 			<Wrench class="mx-auto text-[var(--text-muted)] mb-3" size={48} />
 			<p class="text-[var(--text-secondary)] font-medium">No tools found</p>
@@ -80,11 +80,11 @@
 					href="/tools/{encodeURIComponent(server.name)}{projectEncodedName
 						? `?project=${encodeURIComponent(projectEncodedName)}`
 						: ''}"
-					class="group block bg-[var(--bg-base)] border border-[var(--border)] rounded-xl p-5 hover:border-[var(--accent)]/50 hover:shadow-lg transition-all duration-300 relative overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
+					class="group block bg-[var(--bg-base)] border border-[var(--border)] rounded-[var(--radius-md)] p-5 hover:border-[var(--accent)] transition-colors relative overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
 				>
 					<div class="flex items-start justify-between mb-4">
 						<div
-							class="p-2.5 bg-[var(--bg-subtle)] text-[var(--text-secondary)] rounded-lg transition-colors"
+							class="p-2 bg-[var(--bg-subtle)] text-[var(--text-secondary)] rounded-[var(--radius-sm)] transition-colors"
 							style="--server-color: {colorVars.color}; --server-subtle: {colorVars.subtle};"
 							style:background-color="var(--server-subtle)"
 							style:color={colorVars.color}
@@ -93,14 +93,14 @@
 						</div>
 						{#if server.plugin_name}
 							<div
-								class="px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider"
+								class="px-2 py-0.5 rounded-[var(--radius-xs)] text-[10px] font-mono font-medium uppercase tracking-widest border"
 								style="background: {colorVars.subtle}; color: {colorVars.color};"
 							>
 								{server.source}
 							</div>
 						{:else}
 							<div
-								class="px-2 py-0.5 rounded-full bg-[var(--bg-subtle)] text-[10px] font-medium text-[var(--text-muted)] uppercase tracking-wider"
+								class="px-2 py-0.5 rounded-[var(--radius-xs)] bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[10px] font-mono font-medium text-[var(--text-muted)] uppercase tracking-widest"
 							>
 								{server.source}
 							</div>

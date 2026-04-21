@@ -28,6 +28,9 @@
 	} from 'lucide-svelte';
 	import { isToday, isYesterday, isThisWeek, isThisMonth } from 'date-fns';
 	import TabsTrigger from '$lib/components/ui/TabsTrigger.svelte';
+	import InnerTabs from '$lib/components/ui/Tabs.svelte';
+	import InnerTabsList from '$lib/components/ui/TabsList.svelte';
+	import InnerTabsContent from '$lib/components/ui/TabsContent.svelte';
 	import { API_BASE } from '$lib/config';
 	import { ProjectDetailSkeleton, SkeletonSessionCard } from '$lib/components/skeleton';
 	import EmptyState from '$lib/components/ui/EmptyState.svelte';
@@ -997,6 +1000,7 @@
 
 	// Time-based grouping for list view
 	type DateGroup = {
+		key: string;
 		label: string;
 		sessions: SessionSummary[];
 	};
@@ -1025,13 +1029,32 @@
 		}
 
 		const groups: DateGroup[] = [];
-		if (today.length > 0) groups.push({ label: 'Today', sessions: today });
-		if (yesterday.length > 0) groups.push({ label: 'Yesterday', sessions: yesterday });
-		if (thisWeek.length > 0) groups.push({ label: 'This Week', sessions: thisWeek });
-		if (thisMonth.length > 0) groups.push({ label: 'This Month', sessions: thisMonth });
-		if (older.length > 0) groups.push({ label: 'Older', sessions: older });
+		if (today.length > 0) groups.push({ key: 'today', label: 'Today', sessions: today });
+		if (yesterday.length > 0)
+			groups.push({ key: 'yesterday', label: 'Yesterday', sessions: yesterday });
+		if (thisWeek.length > 0)
+			groups.push({ key: 'thisWeek', label: 'This Week', sessions: thisWeek });
+		if (thisMonth.length > 0)
+			groups.push({ key: 'thisMonth', label: 'This Month', sessions: thisMonth });
+		if (older.length > 0) groups.push({ key: 'older', label: 'Older', sessions: older });
 
 		return groups;
+	});
+
+	// Time-based tab state for the Recent Sessions list (mirrors /sessions).
+	let activeDateTab = $state<string>('today');
+	$effect(() => {
+		if (groupedByDate.length === 0) return;
+		const current = groupedByDate.find((g) => g.key === activeDateTab);
+		if (!current) activeDateTab = groupedByDate[0].key;
+	});
+
+	// Per-tab client-side pagination within Recent Sessions.
+	const SESSIONS_TAB_PAGE_SIZE = 30;
+	let sessionsTabPage = $state(1);
+	$effect(() => {
+		void activeDateTab;
+		sessionsTabPage = 1;
 	});
 </script>
 
@@ -1100,9 +1123,7 @@
 					<div class="space-y-4">
 						<!-- Header row: title + count + view toggle -->
 						<div class="flex items-center justify-between">
-							<h2 class="text-sm font-semibold text-[var(--text-primary)]">
-								Recent Sessions
-							</h2>
+							<h2 class="sessions-section-title">Recent Sessions</h2>
 							<div class="flex items-center gap-3">
 								<span
 									class="text-xs text-[var(--text-muted)] font-mono tabular-nums flex items-center gap-2"
@@ -1172,7 +1193,7 @@
 									<span>Filters</span>
 									{#if activeFilterCount > 0}
 										<span
-											class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-[var(--accent)] text-white rounded-full text-[10px] font-bold tabular-nums"
+											class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-[var(--accent)] text-[var(--bg-base)] rounded-full text-[10px] font-semibold tabular-nums"
 										>
 											{activeFilterCount}
 										</span>
@@ -1314,82 +1335,68 @@
 						<!-- Session Cards -->
 						{#if filteredSessions.length > 0}
 							{#key resultsAnimationKey}
-								{#if viewMode === 'list'}
-									<!-- List View: Time-Based Grouping -->
-									<div class="space-y-8 animate-results-update">
-										{#each groupedByDate as group (group.label)}
-											<div>
-												<!-- Section Header -->
-												<h2
-													class="text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)] mb-4"
-												>
-													{group.label}
-													<span
-														class="text-[var(--text-faint)] font-medium ml-1.5"
-													>
-														({group.sessions.length})
-													</span>
-												</h2>
+								<InnerTabs bind:value={activeDateTab} class="animate-results-update">
+									<InnerTabsList class="mb-4">
+										{#each groupedByDate as group (group.key)}
+											<TabsTrigger value={group.key}>
+												<span>{group.label}</span>
+												<span class="tab-count">{group.sessions.length}</span>
+											</TabsTrigger>
+										{/each}
+									</InnerTabsList>
 
-												<!-- Session Cards Grid -->
+									{#each groupedByDate as group (group.key)}
+										<InnerTabsContent value={group.key}>
+											{@const visible = group.sessions.slice(
+												(sessionsTabPage - 1) * SESSIONS_TAB_PAGE_SIZE,
+												sessionsTabPage * SESSIONS_TAB_PAGE_SIZE
+											)}
+											{#if viewMode === 'list'}
 												<div
 													class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
 												>
-													{#each group.sessions as session (session.uuid)}
+													{#each visible as session (session.uuid)}
 														<SessionCard
 															{session}
 															projectEncodedName={project.encoded_name}
-															showBranch={selectedBranchFilters.size ===
-																0}
-															liveSession={getLiveSession(
-																session
-															)}
+															showBranch={selectedBranchFilters.size === 0}
+															liveSession={getLiveSession(session)}
 															highlighted={getSessionUrlIdentifier(session, getLiveSession(session)) === lastOpenedSessionId}
 														/>
 													{/each}
 												</div>
-											</div>
-										{/each}
-									</div>
-								{:else}
-									<!-- Grid View: Compact with Time-Based Grouping -->
-									<div class="space-y-6 animate-results-update">
-										{#each groupedByDate as group (group.label)}
-											<div>
-												<!-- Section Header -->
-												<h2
-													class="text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)] mb-3"
-												>
-													{group.label}
-													<span
-														class="text-[var(--text-faint)] font-medium ml-1.5"
-													>
-														({group.sessions.length})
-													</span>
-												</h2>
-
-												<!-- Session Cards Grid (Compact) -->
+											{:else}
 												<div
 													class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2"
 												>
-													{#each group.sessions as session (session.uuid)}
+													{#each visible as session (session.uuid)}
 														<SessionCard
 															{session}
 															projectEncodedName={project.encoded_name}
-															showBranch={selectedBranchFilters.size ===
-																0}
+															showBranch={selectedBranchFilters.size === 0}
 															compact
-															liveSession={getLiveSession(
-																session
-															)}
+															liveSession={getLiveSession(session)}
 															highlighted={getSessionUrlIdentifier(session, getLiveSession(session)) === lastOpenedSessionId}
 														/>
 													{/each}
 												</div>
-											</div>
-										{/each}
-									</div>
-								{/if}
+											{/if}
+
+											{#if group.sessions.length > SESSIONS_TAB_PAGE_SIZE}
+												<Pagination
+													total={group.sessions.length}
+													page={sessionsTabPage}
+													perPage={SESSIONS_TAB_PAGE_SIZE}
+													totalPages={Math.ceil(
+														group.sessions.length / SESSIONS_TAB_PAGE_SIZE
+													)}
+													onPageChange={(p) => (sessionsTabPage = p)}
+													itemLabel="sessions"
+												/>
+											{/if}
+										</InnerTabsContent>
+									{/each}
+								</InnerTabs>
 							{/key}
 						{:else if isListLoading}
 							<!-- Loading State - Skeleton Cards -->
@@ -1464,23 +1471,6 @@
 							/>
 						{/if}
 
-						<!-- Pagination / Results Info -->
-						{#if !hasClientSideFilters && project && (project.sessions?.length ?? 0) > 0}
-							<Pagination
-								total={totalSessionCount}
-								page={currentPage}
-								perPage={paginationPerPage}
-								{totalPages}
-								onPageChange={goToPage}
-								itemLabel="sessions"
-							/>
-						{:else if hasClientSideFilters && project && (project.sessions?.length ?? 0) > 0}
-							<div class="mt-8 text-xs text-[var(--text-muted)] tabular-nums">
-								Showing <span class="font-medium text-[var(--text-secondary)]"
-									>{filteredSessionsCount.toLocaleString()}</span
-								> filtered sessions
-							</div>
-						{/if}
 					</div>
 				</Tabs.Content>
 
@@ -1492,10 +1482,8 @@
 							class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
 						>
 							<div>
-								<h2 class="text-lg font-semibold text-[var(--text-primary)]">
-									Project Analytics
-								</h2>
-								<p class="text-sm text-[var(--text-muted)]">
+								<h2 class="tab-section-title">Project Analytics</h2>
+								<p class="tab-section-sub">
 									Insights into your coding patterns and project health
 								</p>
 							</div>
@@ -1548,31 +1536,25 @@
 										<div
 											class="flex items-center gap-2 text-[var(--text-muted)]"
 										>
-											<Clock size={16} />
-											<h3
-												class="text-xs font-semibold uppercase tracking-wider"
-											>
-												Time Investment
-											</h3>
+											<Clock size={14} strokeWidth={1.75} />
+											<h3 class="summary-card-label">Time Investment</h3>
 										</div>
 									</div>
 
 									<div class="mb-4 flex flex-col justify-center">
 										<div class="flex items-center gap-3">
 											<div
-												class="p-2 rounded-full bg-[var(--bg-active)] text-[var(--accent)]"
+												class="inline-flex items-center justify-center w-9 h-9 rounded-[var(--radius-sm)] bg-[var(--accent-subtle)] text-[var(--accent)]"
 											>
-												<PieChart size={24} />
+												<PieChart size={18} strokeWidth={1.75} />
 											</div>
 											<div>
-												<div
-													class="text-2xl font-bold text-[var(--text-primary)]"
-												>
+												<div class="summary-card-value">
 													{formatDuration(
 														analytics.total_duration_seconds
 													)}
 												</div>
-												<div class="text-xs text-[var(--text-muted)]">
+												<div class="text-xs text-[var(--text-muted)] mt-0.5">
 													Total Time
 												</div>
 											</div>
@@ -1605,15 +1587,11 @@
 											<div
 												class="flex items-center gap-2 text-[var(--text-muted)]"
 											>
-												<Briefcase size={16} />
-												<h3
-													class="text-xs font-semibold uppercase tracking-wider"
-												>
-													Work Mode
-												</h3>
+												<Briefcase size={14} strokeWidth={1.75} />
+												<h3 class="summary-card-label">Work Mode</h3>
 											</div>
 											<span
-												class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[var(--bg-muted)] text-[var(--text-primary)] border border-[var(--border)]"
+												class="font-mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-[var(--radius-xs)] bg-[var(--bg-muted)] text-[var(--text-secondary)] border border-[var(--border-subtle)]"
 											>
 												{analytics.work_mode_distribution.primary_mode}
 											</span>
@@ -1625,17 +1603,17 @@
 												class="h-3 w-full flex rounded-full overflow-hidden bg-[var(--bg-muted)]"
 											>
 												<div
-													class="bg-blue-500/80 h-full first:rounded-l-full last:rounded-r-full"
+													class="workmode-bar workmode-explore h-full first:rounded-l-full last:rounded-r-full"
 													style="width: {analytics.work_mode_distribution
 														.exploration_pct}%"
 												></div>
 												<div
-													class="bg-purple-500/80 h-full first:rounded-l-full last:rounded-r-full"
+													class="workmode-bar workmode-build h-full first:rounded-l-full last:rounded-r-full"
 													style="width: {analytics.work_mode_distribution
 														.building_pct}%"
 												></div>
 												<div
-													class="bg-orange-500/80 h-full first:rounded-l-full last:rounded-r-full"
+													class="workmode-bar workmode-test h-full first:rounded-l-full last:rounded-r-full"
 													style="width: {analytics.work_mode_distribution
 														.testing_pct}%"
 												></div>
@@ -1646,7 +1624,7 @@
 											<div class="flex justify-between items-center">
 												<div class="flex items-center gap-2">
 													<div
-														class="w-2 h-2 rounded-full bg-blue-500/80"
+														class="w-2 h-2 rounded-full workmode-bar workmode-explore"
 													></div>
 													<span class="text-[var(--text-secondary)]"
 														>Exploration</span
@@ -1660,7 +1638,7 @@
 											<div class="flex justify-between items-center">
 												<div class="flex items-center gap-2">
 													<div
-														class="w-2 h-2 rounded-full bg-purple-500/80"
+														class="w-2 h-2 rounded-full workmode-bar workmode-build"
 													></div>
 													<span class="text-[var(--text-secondary)]"
 														>Building</span
@@ -1674,7 +1652,7 @@
 											<div class="flex justify-between items-center">
 												<div class="flex items-center gap-2">
 													<div
-														class="w-2 h-2 rounded-full bg-orange-500/80"
+														class="w-2 h-2 rounded-full workmode-bar workmode-test"
 													></div>
 													<span class="text-[var(--text-secondary)]"
 														>Testing</span
@@ -1731,10 +1709,8 @@
 						<div class="space-y-6">
 							<!-- Header -->
 							<div>
-								<h2 class="text-lg font-semibold text-[var(--text-primary)]">
-									Archived Sessions
-								</h2>
-								<p class="text-sm text-[var(--text-muted)]">
+								<h2 class="tab-section-title">Archived Sessions</h2>
+								<p class="tab-section-sub">
 									{archived.total_sessions}
 									{archived.total_sessions === 1 ? 'session' : 'sessions'} with {archived.total_prompts}
 									prompts cleaned up by retention policy
@@ -1756,3 +1732,68 @@
 		{/if}
 	</div>
 {/if}
+
+<style>
+	/* Work-mode distribution — themed ink palette (no more raw Tailwind 500s) */
+	.workmode-bar {
+		height: 100%;
+		transition: width var(--duration-base) var(--ease);
+	}
+	.workmode-explore {
+		background: var(--nav-blue);
+	}
+	.workmode-build {
+		background: var(--nav-purple);
+	}
+	.workmode-test {
+		background: var(--nav-orange);
+	}
+
+	/* Section headings inside tab content — editorial eyebrow style */
+	.tab-section-title {
+		font-family: var(--font-serif);
+		font-style: italic;
+		font-weight: 400;
+		font-size: 26px;
+		line-height: 1;
+		letter-spacing: -0.02em;
+		color: var(--text-primary);
+		margin: 0;
+	}
+
+	.tab-section-sub {
+		margin: 6px 0 0;
+		font-size: 13px;
+		color: var(--text-muted);
+	}
+
+	/* Summary card labels (Time Investment, Work Mode) */
+	.summary-card-label {
+		font-family: var(--font-mono);
+		font-size: 10px;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		font-weight: 500;
+		color: var(--text-muted);
+	}
+
+	/* Big numerical value inside summary cards */
+	.summary-card-value {
+		font-size: 26px;
+		font-weight: 600;
+		letter-spacing: -0.02em;
+		line-height: 1.1;
+		color: var(--text-primary);
+		font-variant-numeric: tabular-nums;
+	}
+
+	/* Sessions section header */
+	.sessions-section-title {
+		font-family: var(--font-mono);
+		font-size: 11px;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		font-weight: 500;
+		color: var(--text-primary);
+	}
+</style>
