@@ -24,7 +24,10 @@
 	let { projectEncodedName, currentPath = '' }: Props = $props();
 
 	// When embedded in project tab, we manage path locally (no URL changes).
-	// When on the global /skills page, currentPath is driven by the URL prop.
+	// When on the global /skills page, currentPath is driven by the URL prop
+	// and kept in sync via the $effect below — the initial-value capture is
+	// intentional here.
+	// svelte-ignore state_referenced_locally
 	let internalPath = $state(currentPath);
 
 	// Keep in sync with prop for global-skills-page usage (currentPath changes via URL)

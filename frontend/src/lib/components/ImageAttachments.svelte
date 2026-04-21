@@ -84,7 +84,7 @@
 					<img
 						src="data:{image.media_type};base64,{image.data}"
 						class="max-h-[70vh] w-auto object-contain rounded-md"
-						alt="Full size image attachment"
+						alt="Attachment preview ({image.media_type})"
 					/>
 				</div>
 				<div class="mt-3 pt-2 border-t border-[var(--border)]">
