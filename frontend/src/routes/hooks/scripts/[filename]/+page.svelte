@@ -100,28 +100,34 @@
 	<!-- Event Types -->
 	{#if script.event_types.length > 0}
 		<section class="mb-8">
-			<h2
-				class="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-3"
-			>
-				Event Types
-			</h2>
-			<div class="flex flex-wrap gap-2">
+			<div class="flex items-center gap-2 mb-3">
+				<span
+					class="inline-block w-1.5 h-1.5 rounded-full"
+					style="background-color: var(--nav-orange);"
+				></span>
+				<h2
+					class="font-mono text-[11px] uppercase tracking-widest font-medium text-[var(--text-secondary)]"
+				>
+					Event types
+				</h2>
+			</div>
+			<div class="flex flex-wrap gap-1.5">
 				{#each script.event_types as eventType}
 					<a
 						href="/hooks/{encodeURIComponent(eventType)}"
 						class="
 							inline-flex items-center gap-1.5
-							px-3 py-1.5
-							text-xs font-medium
-							rounded-lg
-							bg-[var(--bg-muted)] text-[var(--text-secondary)]
-							hover:bg-[var(--nav-amber-subtle)] hover:text-[var(--nav-amber)]
-							border border-transparent hover:border-[var(--nav-amber)]
+							px-2 py-1
+							font-mono text-[10px] uppercase tracking-widest
+							rounded-[var(--radius-xs)]
+							bg-[var(--bg-subtle)] text-[var(--text-secondary)]
+							border border-[var(--border)]
+							hover:bg-[var(--nav-orange-subtle)] hover:text-[var(--nav-orange)] hover:border-[var(--nav-orange)]
 							transition-colors
 						"
 					>
 						{eventType}
-						<ExternalLink size={10} />
+						<ExternalLink size={10} strokeWidth={1.75} />
 					</a>
 				{/each}
 			</div>
@@ -132,44 +138,48 @@
 	<section>
 		<div
 			class="
-				border border-[#30363d]
-				rounded-xl
+				border border-[var(--border)]
+				rounded-[var(--radius-md)]
 				overflow-hidden
-				bg-[#0d1117]
+				bg-[var(--bg-base)]
 			"
 		>
 			<!-- Code Header -->
 			<div
 				class="
 					flex items-center justify-between
-					px-4 py-3
-					border-b border-[#30363d]
-					bg-[#161b22]
+					px-4 py-2.5
+					border-b border-[var(--border)]
+					bg-[var(--bg-subtle)]
 				"
 			>
-				<div class="flex items-center gap-2 text-sm text-[#8b949e]">
-					<FileCode size={14} />
-					<span class="font-mono text-xs">{script.filename}</span>
+				<div
+					class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-[var(--text-muted)]"
+				>
+					<FileCode size={12} strokeWidth={1.75} />
+					<span>{script.filename}</span>
 				</div>
 				{#if detail.content}
 					<button
 						onclick={copyCode}
 						class="
 							flex items-center gap-1.5
-							px-3 py-1.5
-							text-xs font-medium
-							rounded-lg
-							text-[#8b949e]
-							hover:text-[#e6edf3]
-							hover:bg-[#30363d]
+							px-2 py-1
+							font-mono text-[10px] uppercase tracking-widest
+							rounded-[var(--radius-xs)]
+							text-[var(--text-muted)]
+							hover:text-[var(--accent)]
+							hover:bg-[var(--bg-base)]
+							border border-transparent
+							hover:border-[var(--border)]
 							transition-colors
 						"
 					>
 						{#if copied}
-							<Check size={12} class="text-green-500" />
-							<span class="text-green-500">Copied</span>
+							<Check size={12} strokeWidth={1.75} style="color: var(--success);" />
+							<span style="color: var(--success);">Copied</span>
 						{:else}
-							<Copy size={12} />
+							<Copy size={12} strokeWidth={1.75} />
 							<span>Copy</span>
 						{/if}
 					</button>
@@ -210,7 +220,7 @@
 				</div>
 			{:else if detail.content}
 				<pre
-					class="p-4 overflow-x-auto text-sm font-mono text-[#e6edf3] leading-relaxed">{detail.content}</pre>
+					class="p-4 overflow-x-auto text-sm font-mono text-[var(--text-secondary)] leading-relaxed bg-[var(--bg-base)]">{detail.content}</pre>
 			{:else}
 				<div class="p-8">
 					<EmptyState
@@ -225,13 +235,11 @@
 </div>
 
 <style>
-	/* Shiki code block styling */
 	.shiki-container :global(pre) {
 		margin: 0;
 		padding: 1rem 1.25rem;
 		overflow-x: auto;
-		font-family:
-			'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+		font-family: var(--font-mono);
 		font-size: 0.8125rem;
 		line-height: 1.7;
 		tab-size: 4;
@@ -244,10 +252,5 @@
 	.shiki-container :global(.line) {
 		display: inline-block;
 		width: 100%;
-	}
-
-	/* Force dark background for code block in both themes */
-	.shiki-container :global(pre.shiki) {
-		background-color: #0d1117 !important;
 	}
 </style>

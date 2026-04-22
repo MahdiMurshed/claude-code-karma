@@ -35,7 +35,7 @@
 	<PageHeader
 		title={data.event_type}
 		icon={Webhook}
-		iconColor="--nav-amber"
+		iconColor="--nav-orange"
 		breadcrumbs={[
 			{ label: 'Dashboard', href: '/' },
 			{ label: 'Hooks', href: '/hooks' },
@@ -56,8 +56,8 @@
 
 	<!-- Description Card -->
 	{#if event.description}
-		<div class="bg-[var(--bg-base)] border border-[var(--border)] rounded-lg p-6 shadow-sm">
-			<p class="text-sm text-[var(--text-secondary)] leading-relaxed">
+		<div class="bg-[var(--bg-base)] border border-[var(--border)] rounded-[var(--radius-md)] p-6">
+			<p class="font-serif italic text-[var(--text-secondary)] leading-relaxed">
 				{event.description}
 			</p>
 		</div>
@@ -66,10 +66,18 @@
 	<!-- Active Registrations Section -->
 	{#if event.registrations.length > 0}
 		<div class="space-y-4">
-			<div class="flex items-center gap-3">
-				<h2 class="text-lg font-bold text-[var(--text-primary)]">Active Registrations</h2>
+			<div class="flex items-center gap-2">
 				<span
-					class="inline-flex items-center justify-center min-w-[24px] h-[24px] px-2 bg-[var(--accent-subtle)] text-[var(--accent)] rounded-full text-xs font-bold tabular-nums"
+					class="inline-block w-1.5 h-1.5 rounded-full"
+					style="background-color: var(--nav-orange);"
+				></span>
+				<h2
+					class="font-mono text-[11px] uppercase tracking-widest font-medium text-[var(--text-secondary)]"
+				>
+					Active registrations
+				</h2>
+				<span
+					class="font-mono text-[10px] tabular-nums text-[var(--accent)] bg-[var(--accent-subtle)] rounded-full px-2 py-0.5"
 				>
 					{event.registrations.length}
 				</span>
@@ -82,17 +90,18 @@
 						registration.source_name
 					)}
 					<div
-						class="bg-[var(--bg-base)] border border-[var(--border)] rounded-lg p-5 hover:shadow-md transition-shadow"
+						class="bg-[var(--bg-base)] border border-[var(--border)] rounded-[var(--radius-md)] p-5 hover:border-[var(--border-hover)] transition-colors"
+						style="border-left: 3px solid {sourceColors.color};"
 					>
 						<!-- Source Header -->
 						<div
 							class="flex items-start justify-between mb-4 pb-4 border-b border-[var(--border)]"
 						>
-							<div class="flex items-center gap-3">
-								<div
-									class="w-3 h-3 rounded-full flex-shrink-0"
+							<div class="flex items-center gap-2">
+								<span
+									class="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0"
 									style="background-color: {sourceColors.color};"
-								></div>
+								></span>
 								<div>
 									<a
 										href="/hooks/sources/{registration.source_id}"
@@ -101,29 +110,35 @@
 										{registration.source_name}
 									</a>
 									{#if registration.description}
-										<p class="text-xs text-[var(--text-muted)] mt-1">
+										<p
+											class="font-serif italic text-[var(--text-muted)] text-sm mt-0.5"
+										>
 											{registration.description}
 										</p>
 									{/if}
 								</div>
 							</div>
-							<Badge variant="slate" class="flex-shrink-0">
+							<span
+								class="flex-shrink-0 font-mono text-[10px] uppercase tracking-widest text-[var(--text-muted)] bg-[var(--bg-subtle)] border border-[var(--border)] rounded-[var(--radius-xs)] px-2 py-0.5"
+							>
 								{registration.source_type}
-							</Badge>
+							</span>
 						</div>
 
 						<!-- Script Info -->
 						{#if registration.script_filename}
 							<div class="mb-4 flex items-center gap-2">
-								<FileCode size={14} class="text-[var(--text-muted)]" />
-								<code class="text-sm font-mono text-[var(--text-secondary)]">
+								<FileCode size={12} strokeWidth={1.75} class="text-[var(--text-muted)]" />
+								<code class="font-mono text-xs text-[var(--text-secondary)]">
 									{registration.script_filename}
 								</code>
 								<span
-									class="px-2 py-0.5 rounded text-xs font-medium text-white"
-									style="background-color: {languageColors[
+									class="font-mono text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded-[var(--radius-xs)] border"
+									style="color: {languageColors[
 										registration.script_language.toLowerCase()
-									] || 'var(--text-muted)'};"
+									] || 'var(--text-muted)'}; border-color: {languageColors[
+										registration.script_language.toLowerCase()
+									] || 'var(--border)'}30;"
 								>
 									{registration.script_language}
 								</span>
@@ -133,50 +148,44 @@
 						<!-- Command -->
 						<div class="mb-4">
 							<div class="flex items-center gap-2 mb-2">
-								<Code size={14} class="text-[var(--text-muted)]" />
+								<Code size={12} strokeWidth={1.75} class="text-[var(--text-muted)]" />
 								<span
-									class="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider"
+									class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-muted)]"
 								>
 									Command
 								</span>
 							</div>
 							<pre
-								class="bg-[var(--bg-muted)] border border-[var(--border)] rounded p-3 text-xs font-mono text-[var(--text-secondary)] overflow-x-auto"><code
+								class="bg-[var(--bg-subtle)] border border-[var(--border)] rounded-[var(--radius-sm)] p-3 text-xs font-mono text-[var(--text-secondary)] overflow-x-auto"><code
 									>{registration.command}</code
 								></pre>
 						</div>
 
 						<!-- Metadata Row -->
 						<div
-							class="flex items-center gap-4 flex-wrap text-xs text-[var(--text-muted)]"
+							class="flex items-center gap-4 flex-wrap font-mono text-[11px] text-[var(--text-muted)] tabular-nums"
 						>
 							{#if registration.matcher && registration.matcher !== '*'}
 								<div class="flex items-center gap-1.5">
-									<Target size={12} />
-									<span
-										>Matcher: <code class="text-[var(--text-secondary)]"
-											>{registration.matcher}</code
-										></span
-									>
+									<Target size={12} strokeWidth={1.75} />
+									<span class="uppercase tracking-widest">Matcher</span>
+									<code class="text-[var(--text-secondary)]">{registration.matcher}</code>
 								</div>
 							{/if}
 							{#if registration.timeout_ms}
 								<div class="flex items-center gap-1.5">
-									<Clock size={12} />
-									<span
-										>Timeout: <span
-											class="text-[var(--text-secondary)] tabular-nums"
-											>{registration.timeout_ms}ms</span
-										></span
-									>
+									<Clock size={12} strokeWidth={1.75} />
+									<span class="uppercase tracking-widest">Timeout</span>
+									<span class="text-[var(--text-secondary)]">{registration.timeout_ms}ms</span>
 								</div>
 							{/if}
 							{#if registration.can_block}
-								<div class="flex items-center gap-1.5">
-									<Shield size={12} class="text-[var(--red)]" />
-									<span class="text-[var(--red)] font-medium"
-										>Can block execution</span
-									>
+								<div
+									class="flex items-center gap-1.5 uppercase tracking-widest"
+									style="color: var(--error);"
+								>
+									<Shield size={12} strokeWidth={1.75} />
+									Can block
 								</div>
 							{/if}
 						</div>
@@ -186,14 +195,18 @@
 		</div>
 	{:else}
 		<div
-			class="flex items-center gap-3 px-5 py-4 bg-[var(--bg-subtle)] rounded-xl border border-dashed border-[var(--border)]"
+			class="flex items-center gap-3 px-5 py-4 bg-[var(--bg-subtle)] rounded-[var(--radius-md)] border border-dashed border-[var(--border)]"
 		>
-			<Webhook size={20} class="text-[var(--text-muted)] flex-shrink-0" />
+			<Webhook
+				size={18}
+				strokeWidth={1.75}
+				class="text-[var(--text-muted)] flex-shrink-0"
+			/>
 			<div>
-				<p class="text-sm text-[var(--text-secondary)] font-medium">
+				<p class="font-serif italic text-[var(--text-secondary)]">
 					No active registrations
 				</p>
-				<p class="text-xs text-[var(--text-muted)]">
+				<p class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-muted)] mt-0.5">
 					This hook event has no registered handlers
 				</p>
 			</div>
@@ -204,7 +217,7 @@
 	{#if schemaInfo}
 		<CollapsibleGroup title="Event Schema" open={false}>
 			{#snippet icon()}
-				<Code size={16} style="color: var(--nav-amber);" />
+				<Code size={14} strokeWidth={1.75} style="color: var(--nav-orange);" />
 			{/snippet}
 
 			{#snippet children()}
@@ -213,7 +226,7 @@
 					{#if schemaInfo.input_fields.length > 0}
 						<div>
 							<h4
-								class="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3"
+								class="font-mono text-[11px] uppercase tracking-widest font-medium text-[var(--text-secondary)] mb-3"
 							>
 								Input Fields
 							</h4>
@@ -224,22 +237,22 @@
 									>
 										<tr>
 											<th
-												class="px-3 py-2 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider"
+												class="px-3 py-2 text-left font-mono text-[10px] uppercase tracking-widest font-medium text-[var(--text-muted)]"
 											>
 												Name
 											</th>
 											<th
-												class="px-3 py-2 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider"
+												class="px-3 py-2 text-left font-mono text-[10px] uppercase tracking-widest font-medium text-[var(--text-muted)]"
 											>
 												Type
 											</th>
 											<th
-												class="px-3 py-2 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider"
+												class="px-3 py-2 text-left font-mono text-[10px] uppercase tracking-widest font-medium text-[var(--text-muted)]"
 											>
 												Required
 											</th>
 											<th
-												class="px-3 py-2 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider"
+												class="px-3 py-2 text-left font-mono text-[10px] uppercase tracking-widest font-medium text-[var(--text-muted)]"
 											>
 												Description
 											</th>
@@ -257,7 +270,7 @@
 												</td>
 												<td class="px-3 py-2.5">
 													<code
-														class="px-2 py-0.5 bg-[var(--bg-muted)] text-[var(--accent)] rounded text-xs"
+														class="px-1.5 py-0.5 bg-[var(--accent-subtle)] text-[var(--accent)] rounded-[var(--radius-xs)] font-mono text-[11px]"
 													>
 														{field.type}
 													</code>
@@ -290,7 +303,7 @@
 					{#if schemaInfo.output_fields.length > 0}
 						<div>
 							<h4
-								class="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3"
+								class="font-mono text-[11px] uppercase tracking-widest font-medium text-[var(--text-secondary)] mb-3"
 							>
 								Output Fields
 							</h4>
@@ -301,22 +314,22 @@
 									>
 										<tr>
 											<th
-												class="px-3 py-2 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider"
+												class="px-3 py-2 text-left font-mono text-[10px] uppercase tracking-widest font-medium text-[var(--text-muted)]"
 											>
 												Name
 											</th>
 											<th
-												class="px-3 py-2 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider"
+												class="px-3 py-2 text-left font-mono text-[10px] uppercase tracking-widest font-medium text-[var(--text-muted)]"
 											>
 												Type
 											</th>
 											<th
-												class="px-3 py-2 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider"
+												class="px-3 py-2 text-left font-mono text-[10px] uppercase tracking-widest font-medium text-[var(--text-muted)]"
 											>
 												Required
 											</th>
 											<th
-												class="px-3 py-2 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider"
+												class="px-3 py-2 text-left font-mono text-[10px] uppercase tracking-widest font-medium text-[var(--text-muted)]"
 											>
 												Description
 											</th>
@@ -334,7 +347,7 @@
 												</td>
 												<td class="px-3 py-2.5">
 													<code
-														class="px-2 py-0.5 bg-[var(--bg-muted)] text-[var(--accent)] rounded text-xs"
+														class="px-1.5 py-0.5 bg-[var(--accent-subtle)] text-[var(--accent)] rounded-[var(--radius-xs)] font-mono text-[11px]"
 													>
 														{field.type}
 													</code>
@@ -367,7 +380,7 @@
 					{#if schemaInfo.base_fields.length > 0}
 						<div>
 							<h4
-								class="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3"
+								class="font-mono text-[11px] uppercase tracking-widest font-medium text-[var(--text-secondary)] mb-3"
 							>
 								Base Fields (All Hooks)
 							</h4>
@@ -378,22 +391,22 @@
 									>
 										<tr>
 											<th
-												class="px-3 py-2 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider"
+												class="px-3 py-2 text-left font-mono text-[10px] uppercase tracking-widest font-medium text-[var(--text-muted)]"
 											>
 												Name
 											</th>
 											<th
-												class="px-3 py-2 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider"
+												class="px-3 py-2 text-left font-mono text-[10px] uppercase tracking-widest font-medium text-[var(--text-muted)]"
 											>
 												Type
 											</th>
 											<th
-												class="px-3 py-2 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider"
+												class="px-3 py-2 text-left font-mono text-[10px] uppercase tracking-widest font-medium text-[var(--text-muted)]"
 											>
 												Required
 											</th>
 											<th
-												class="px-3 py-2 text-left text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider"
+												class="px-3 py-2 text-left font-mono text-[10px] uppercase tracking-widest font-medium text-[var(--text-muted)]"
 											>
 												Description
 											</th>
@@ -411,7 +424,7 @@
 												</td>
 												<td class="px-3 py-2.5">
 													<code
-														class="px-2 py-0.5 bg-[var(--bg-muted)] text-[var(--text-secondary)] rounded text-xs"
+														class="px-1.5 py-0.5 bg-[var(--bg-subtle)] text-[var(--text-secondary)] rounded-[var(--radius-xs)] font-mono text-[11px]"
 													>
 														{field.type}
 													</code>
@@ -447,17 +460,28 @@
 	<!-- Related Events Section -->
 	{#if relatedEvents.length > 0}
 		<div class="space-y-4">
-			<h2 class="text-lg font-bold text-[var(--text-primary)]">Related Events</h2>
+			<div class="flex items-center gap-2">
+				<span
+					class="inline-block w-1.5 h-1.5 rounded-full"
+					style="background-color: var(--nav-orange);"
+				></span>
+				<h2
+					class="font-mono text-[11px] uppercase tracking-widest font-medium text-[var(--text-secondary)]"
+				>
+					Related events
+				</h2>
+			</div>
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
 				{#each relatedEvents as relatedEvent}
 					<a
 						href="/hooks/{encodeURIComponent(relatedEvent.event_type)}"
-						class="group bg-[var(--bg-base)] border border-[var(--border)] rounded-lg p-4 hover:shadow-md hover:border-[var(--accent)] transition-all"
+						class="group bg-[var(--bg-base)] border border-[var(--border)] rounded-[var(--radius-md)] p-4 hover:border-[var(--accent)] transition-colors"
 					>
 						<div class="flex items-start justify-between mb-2">
 							<div class="flex items-center gap-2">
 								<ArrowRight
 									size={14}
+									strokeWidth={1.75}
 									class="text-[var(--text-muted)] group-hover:text-[var(--accent)] transition-colors"
 								/>
 								<h3
@@ -467,7 +491,7 @@
 								</h3>
 							</div>
 							{#if relatedEvent.can_block}
-								<Shield size={12} class="text-[var(--red)]" />
+								<Shield size={12} strokeWidth={1.75} style="color: var(--error);" />
 							{/if}
 						</div>
 						<div class="flex items-center gap-2 flex-wrap">
@@ -477,7 +501,9 @@
 							>
 								{relatedEvent.phase}
 							</Badge>
-							<span class="text-xs text-[var(--text-muted)]">
+							<span
+								class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-muted)]"
+							>
 								{relatedEvent.position}
 							</span>
 						</div>
