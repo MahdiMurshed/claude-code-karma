@@ -15,7 +15,7 @@ let highlighterPromise: ReturnType<typeof createHighlighter> | null = null;
 function getHighlighter() {
 	if (!highlighterPromise) {
 		highlighterPromise = createHighlighter({
-			themes: ['github-dark'],
+			themes: ['github-light'],
 			langs: ['python', 'javascript', 'bash']
 		});
 	}
@@ -52,7 +52,7 @@ export async function load({ params, fetch }) {
 			const lang = LANGUAGE_MAP[data.script.language] || 'text';
 			highlightedHtml = highlighter.codeToHtml(data.content, {
 				lang,
-				theme: 'github-dark'
+				theme: 'github-light'
 			});
 		} catch {
 			// Fallback: no highlighting

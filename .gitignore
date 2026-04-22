@@ -1,6 +1,9 @@
 # OMC state
 .omc/
 
+# gstack local state (security reports, etc.)
+.gstack/
+
 # Claude Code local config
 .claude/
 
